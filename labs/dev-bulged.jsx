@@ -26,35 +26,25 @@ const downloadFile = file => {
 		throw new Error("Received argument isn't a File's instance!");
 };
 
+
+const r = n => Math.round(n * 100) / 100; // !!!!
+
 export const Example = props => {
 
 	const [bulgeX, setBulgeX] = useState(50);
 	const [bulgeY, setBulgeY] = useState(20);
 	const [roundness, setRoundness] = useState(10);
+	const [shrinknessX, setShrinknessX] = useState(50);
+	const [shrinknessY, setShrinknessY] = useState(50);
 
-	const {polygon, path} = generateBulged(bulgeX, bulgeY, roundness);
+	const bulged = generateBulged(bulgeX / 100, bulgeY / 100, roundness / 100);
 
-	let clipPath = "polygon(";
+	const path = bulged.toPath();
 
-	for (let i = 0; i < polygon.length - 1; i++) {
-
-		const c = polygon[i];
-
-		switch (c) {
-			case ",":
-				clipPath += "% ";
-				break;
-			case " ":
-				clipPath += "%,";
-				break;
-			default:
-				clipPath += c;
-		}
-	}
-
-	clipPath += "%)";
+	const clipPath = bulged.toClipPolygon(0.5, shrinknessX / 100, shrinknessY / 100);
 
 	return (<>
+		Bulging X:
 		<input
 			type="range"
 			min={1}
@@ -64,6 +54,7 @@ export const Example = props => {
 			name=""
 			id=""
 		/>
+		Bulging Y:
 		<input
 			type="range"
 			min={1}
@@ -73,12 +64,33 @@ export const Example = props => {
 			name=""
 			id=""
 		/>
+		Radius:
 		<input
 			type="range"
 			min={0}
 			max={99}
 			value={roundness}
 			onChange={args => {setRoundness(args.target.value)}}
+			name=""
+			id=""
+		/>
+		Shrinkness X:
+		<input
+			type="range"
+			min={0}
+			max={99}
+			value={shrinknessX}
+			onChange={args => {setShrinknessX(args.target.value)}}
+			name=""
+			id=""
+		/>
+		Shrinkness Y:
+		<input
+			type="range"
+			min={0}
+			max={99}
+			value={shrinknessY}
+			onChange={args => {setShrinknessY(args.target.value)}}
 			name=""
 			id=""
 		/>
@@ -92,12 +104,24 @@ export const Example = props => {
 		>
 			<path d={path}/>
 		</svg>
+		{bulgeX + ", " + bulgeY + ", " + roundness + ", " + shrinknessX + ", " + shrinknessY}
 		<div style={{
-			width: "300px",
-			height: "300px",
-			clipPath
-		}}
-			className="bg-red-400"
+				width: "300px",
+				height: "300px",
+				clipPath
+			}}
+			className="bg-red-400 inline-block"
+		>
+		</div>
+		<div className="bg-slate-800 w-24 h-24 inline-block bulged-md-md"></div>
+		<div className="bg-slate-800 w-80 h-80 inline-block bulged-y-md-md"></div>
+		<div className="bg-slate-800 w-80 h-24 inline-block bulged-x-md-md"></div>
+		<div style={{
+				width: "100px",
+				height: "100px",
+				clipPath
+			}}
+			className="bg-red-400 animation"
 		>
 		</div>
 		<button onClick={() => downloadFile(compileSVGPath(path, `Bulged-${parseInt(bulgeX)}-${parseInt(bulgeY)}-${parseInt(roundness)}`))}>

@@ -106,11 +106,9 @@ const CLy = (arc, y) => {
 	];
 };
 
-const step = 1;
-
-const I = 50;
-const Ox = 50;
-const Oy = 50;
+const I = 50; // CANT BE CHANGED!!!
+const Ox = 50; // CANT BE CHANGED!!!
+const Oy = 50; // CANT BE CHANGED!!!
 const Ox2 = Ox * 2;
 const Oy2 = Oy * 2;
 
@@ -120,147 +118,161 @@ const reflect = (p, xf, yf) => Object.assign({}, p, {
 	y0: yf ? Oy2 - p.y0 : p.y0
 });
 
-const r = n => Math.round(n * 100) / 100;
+const reflectX = x => Ox2 - x;
+const reflectY = y => Oy2 - y;
+
+const r = n => Math.round(n * 10) / 10;
 
 export const generateBulged = (bx, by, roundness) => {
 
-	bx /= 100;
-	by /= 100;
-	const Rr = roundness * I / 100;
+	const Rr = roundness * I;
 
 	const Rx = I / bx;
 	const Ry = I / by;
 
-	const cics = [
-		{x0: Ox - Rx + I, 	y0: Oy,				R: Rx}, // >
-		{x0: Ox, 			y0: Oy - Ry + I,	R: Ry}, // v
-		{x0: Ox + Rx - I, 	y0: Oy,				R: Rx}, // <
-		{x0: Ox, 			y0: Oy + Ry - I,	R: Ry}  // ^
-	];
+	const cicx0 = {x0: Ox + Rx - I, y0: Oy,				R: Rx};
+	const cicy0 = {x0: Ox, 			y0: Oy + Ry - I,	R: Ry};
 
-	const cicx = Object.assign({}, cics[0]);
-	const cicy = Object.assign({}, cics[1]);
+	const cicx = Object.assign({}, cicx0);
+	const cicy = Object.assign({}, cicy0);
 
 	cicx.R -= Rr;
 	cicy.R -= Rr;
 
-	const arcs = [];
-
-	arcs[0] = {...CC(cicx, cicy)[1], R: Rr};
-	arcs[1] = reflect(arcs[0], 1, 0);
-	arcs[2] = reflect(arcs[0], 1, 1);
-	arcs[3] = reflect(arcs[0], 0, 1);
+	const arc = {...CC(cicx, cicy)[1], R: Rr};
 
 	const points = [];
 
-	points[0] = CC0(cics[0], arcs[0]);
-	points[1] = CC0(cics[1], arcs[0]);
-
-	points[2] = reflect(points[1], 1, 0);
-	points[3] = reflect(points[0], 1, 0);
-
-	points[4] = reflect(points[0], 1, 1);
-	points[5] = reflect(points[1], 1, 1);
-
-	points[6] = reflect(points[1], 0, 1);
-	points[7] = reflect(points[0], 0, 1);
-
-	const switcher = CL(arcs[0], Line(arcs[0], CC(cics[0], cics[1])[1]))[0];
-
-	let polygon = "";
-
-	for (let x = Ox + I; x > points[0].x0; x -= step) {
-
-		polygon += r(x) + "," + r(CLx(cics[0], x)[0]) + " ";
-	}
-
-	for (let x = points[0].x0; x > switcher.x0; x -= step) {
-
-		polygon += r(x) + "," + r(CLx(arcs[0], x)[0]) + " ";
-	}
-
-	for (let y = switcher.y0; y < points[1].y0; y += step) {
-
-		polygon += r(CLy(arcs[0], y)[0]) + "," + r(y) + " ";
-	}
-
-	for (let y = points[1].y0; y < Oy + I; y += step) {
-
-		polygon += r(CLy(cics[1], y)[0]) + "," + r(y) + " ";
-	}
-
-	for (let y = Oy + I; y > points[2].y0; y -= step) {
-
-		polygon += r(CLy(cics[1], y)[1]) + "," + r(y) + " ";
-	}
-
-	for (let y = points[2].y0; y > switcher.y0; y -= step) {
-
-		polygon += r(CLy(arcs[1], y)[1]) + "," + r(y) + " ";
-	}
-
-	for (let x = Ox2 - switcher.x0; x > points[3].x0; x -= step) {
-
-		polygon += r(x) + "," + r(CLx(arcs[1], x)[0]) + " ";
-	}
-
-	for (let x = points[3].x0; x > Ox - I; x -= step) {
-
-		polygon += r(x) + "," + r(CLx(cics[2], x)[0]) + " ";
-	}
-
-	for (let x = Ox - I; x < points[4].x0; x += step) {
-
-		polygon += r(x) + "," + r(CLx(cics[2], x)[1]) + " ";
-	}
-
-	for (let x = points[4].x0; x < Ox2 - switcher.x0; x += step) {
-
-		polygon += r(x) + "," + r(CLx(arcs[2], x)[1]) + " ";
-	}
-
-	for (let y = Oy2 - switcher.y0; y > points[5].y0; y -= step) {
-
-		polygon += r(CLy(arcs[2], y)[1]) + "," + r(y) + " ";
-	}
-
-	for (let y = points[5].y0; y > Oy - I; y -= step) {
-
-		polygon += r(CLy(cics[3], y)[1]) + "," + r(y) + " ";
-	}
-
-	for (let y = Oy - I; y < points[6].y0; y += step) {
-
-		polygon += r(CLy(cics[3], y)[0]) + "," + r(y) + " ";
-	}
-
-	for (let y = points[6].y0; y < Oy2 - switcher.y0; y += step) {
-
-		polygon += r(CLy(arcs[3], y)[0]) + "," + r(y) + " ";
-	}
-
-	for (let x = switcher.x0; x < points[7].x0; x += step) {
-
-		polygon += r(x) + "," + r(CLx(arcs[3], x)[1]) + " ";
-	}
-
-	for (let x = points[7].x0; x < Ox + I; x += step) {
-
-		polygon += r(x) + "," + r(CLx(cics[0], x)[1]) + " ";
-	}
+	points[0] = CC0(cicx0, arc);
+	points[1] = CC0(cicy0, arc);
 
 	return {
-		polygon,
-		path: `
-							  M ${points[0].x0} ${points[0].y0}
-			A ${Rr} ${Rr} 0 0 1 ${points[1].x0} ${points[1].y0}
-			A ${Ry} ${Ry} 0 0 1 ${points[2].x0} ${points[2].y0}
-			A ${Rr} ${Rr} 0 0 1 ${points[3].x0} ${points[3].y0}
-			A ${Rx} ${Rx} 0 0 1 ${points[4].x0} ${points[4].y0}
-			A ${Rr} ${Rr} 0 0 1 ${points[5].x0} ${points[5].y0}
-			A ${Ry} ${Ry} 0 0 1 ${points[6].x0} ${points[6].y0}
-			A ${Rr} ${Rr} 0 0 1 ${points[7].x0} ${points[7].y0}
-			A ${Rx} ${Rx} 0 0 1 ${points[0].x0} ${points[0].y0}
+		Ox,
+		Oy,
+		I,
+		toClipPolygon: (step, Xp_a, Yp_a) => {
+
+			if (typeof step !== "number" || step <= 0) throw new Error("...");
+
+			if (typeof Xp_a !== "number" || Xp_a < 0 || Xp_a > 1) throw new Error("...");
+			if (typeof Yp_a !== "number" || Yp_a < 0 || Yp_a > 1) throw new Error("...");
+
+			const xp = Xp_a;
+			const xa = 1 - Xp_a;
+			const yp = Yp_a;
+			const ya = 1 - Yp_a;
+
+			const switcher = CL(arc, Line(arc, CC(cicx0, cicy0)[1]))[1];
+
+			const pxs1 = [], pys1 = [];
+			const pxs2 = [], pys2 = [];
+			
+			const mx = 0, my = 0;
+
+			for (let x = mx; x < points[0].x0; x += step) {
+
+				pxs1.push(x);
+				pys1.push(CLx(cicx0, x)[1]);
+			}
+
+			for (let x = points[0].x0; x < switcher.x0; x += step) {
+
+				pxs1.push(x);
+				pys1.push(CLx(arc, x)[1]);
+			}
+
+			for (let y = my; y < points[1].y0; y += step) {
+
+				pxs2.push(CLy(cicy0, y)[1]);
+				pys2.push(y);
+			}
+
+			for (let y = points[1].y0; y < switcher.y0; y += step) {
+
+				pxs2.push(CLy(arc, y)[1]);
+				pys2.push(y);
+			}
+
+			pxs2.push(CLy(arc, switcher.y0)[1]);
+			pys2.push(switcher.y0);
+
+			pxs2.reverse();
+			pys2.reverse();
+
+			const pxs = pxs1.concat(pxs2);
+			const pys = pys1.concat(pys2);
+
+			//
+
+			let clipPath = "polygon(";
+
+			for (let i = 0; i < pxs.length; i++) {
+
+				clipPath += `calc(${r(
+					xp * pxs[i]
+				)}% + ${r(
+					xa * pxs[i]
+				)}px) calc(${r(
+					yp * pys[i]
+				)}% + ${r(
+					ya * pys[i]
+				)}px),`;
+			}
+
+			for (let i = pxs.length - 1; i >= 0; i--) {
+
+				clipPath += `calc(${r(
+					100 - (xp * pxs[i])
+				)}% - ${r(
+					xa * pxs[i]
+				)}px) calc(${r(
+					yp * pys[i]
+				)}% + ${r(
+					ya * pys[i]
+				)}px),`;
+			}
+
+			for (let i = 0; i < pxs.length; i++) {
+
+				clipPath += `calc(${r(
+					100 - (xp * pxs[i])
+				)}% - ${r(
+					xa * pxs[i]
+				)}px) calc(${r(
+					100 - (yp * pys[i])
+				)}% - ${r(
+					ya * pys[i]
+				)}px),`;
+			}
+
+			for (let i = pxs.length - 1; i >= 0; i--) {
+
+				clipPath += `calc(${r(
+					xp * pxs[i]
+				)}% + ${r(
+					xa * pxs[i]
+				)}px) calc(${r(
+					100 - (yp * pys[i])
+				)}% - ${r(
+					ya * pys[i]
+				)}px),`;
+			}
+
+			clipPath = clipPath.slice(0, -1) + ")";
+
+			return clipPath;
+		},
+
+		toPath: () => `
+							  M ${			points[0].x0} ${		  points[0].y0}
+			A ${Rr} ${Rr} 0 0 1 ${			points[1].x0} ${		  points[1].y0}
+			A ${Ry} ${Ry} 0 0 1 ${reflectX(points[1].x0)} ${		  points[1].y0}
+			A ${Rr} ${Rr} 0 0 1 ${reflectX(points[0].x0)} ${		  points[0].y0}
+			A ${Rx} ${Rx} 0 0 1 ${reflectX(points[0].x0)} ${reflectY(points[0].y0)}
+			A ${Rr} ${Rr} 0 0 1 ${reflectX(points[1].x0)} ${reflectY(points[1].y0)}
+			A ${Ry} ${Ry} 0 0 1 ${			points[1].x0} ${reflectY(points[1].y0)}
+			A ${Rr} ${Rr} 0 0 1 ${			points[0].x0} ${reflectY(points[0].y0)}
+			A ${Rx} ${Rx} 0 0 1 ${			points[0].x0} ${		  points[0].y0}
 		`
 	};
 };

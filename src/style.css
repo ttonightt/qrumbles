@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.animation {
+	animation: 10s wide linear infinite;
+}
+
+.noise {
+	background-image: url(./noise.png);
+	background-repeat: repeat;
+	background-size: 80px;
+	background-blend-mode: exclusion;
+}
+
+.radial-mask {
+	mask-image:
+		linear-gradient(0deg, transparent 82%, black 98%),
+		linear-gradient(90deg, transparent 82%, black 98%),
+		linear-gradient(180deg, transparent 82%, black 98%),
+		linear-gradient(270deg, transparent 82%, black 98%);
+	pointer-events: none;
+}
+
+@keyframes wide {
+	0% {width: 100px;}
+	50% {width: 600px;}
+	100% {width: 100px;}
+}
