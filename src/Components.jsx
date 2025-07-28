@@ -1,6 +1,5 @@
-import { useState, useRef, useLayoutEffect, useEffect, createContext } from "react";
-import { Uint8ArrayX2 } from "./libs/Uint8ArrayX2";
-import { CSSNamedColors } from "./libs/CSSNamedColors";
+import { useState, useRef, useLayoutEffect, useEffect, createContext, useMemo } from "react";
+import { QRMX } from "./QRMX";
 
 class CanvasPlain {
 
@@ -14,55 +13,55 @@ class CanvasPlain {
 		this.height = height;
 
 		this.scale = 1;
-		this.min = min;
-		this.max = max;
 	}
 
-	move (x, y) {
+	toMove (x, y) {
 
-		this.x = x;
-		this.y = y;
+		this.x = Math.floor(x);
+		this.y = Math.floor(y);
 	}
 
-	toScale (sign, x, y) {
+	toMoveCenter (x, y) {
 
-		const coef_ = this.scale + sign;
+		this.x = Math.floor(x - (this.width / 2));
+		this.y = Math.floor(y - (this.height / 2));
+	}
 
-		if (coef_ < this.min || this.max < coef_) return;
+	toScaleOn (d, x, y) {
 
-		this.x = x - ((x - this.x) * coef_ / this.scale);
-		this.y = y - ((y - this.y) * coef_ / this.scale);
-		this.width = this.__width * coef_;
-		this.height = this.__height * coef_;
-		this.scale = coef_;
+		this.toScale(this.scale + d, x, y);
+	}
+
+	toScale (value, x, y) {
+
+		if (this.scaleMin > 0 && value <= this.scaleMin) return;
+		if (this.scaleMax     && this.scaleMax < value) return;
+
+		this.x = x - ((x - this.x) * value / this.scale);
+		this.y = y - ((y - this.y) * value / this.scale);
+		this.width = this.__width * value;
+		this.height = this.__height * value;
+		this.scale = value;
+	}
+
+	resetScaleRange (min, max) {
+		this.scaleMin = min;
+		this.scaleMax = max;
+	}
+
+	toFitInto (width, height, padding = 0) {
+
+		const minContainerSize = Math.min(width - padding, height - padding);
+		const minPlainSize = Math.min(this.__width, this.__height);
+
+		this.toMoveCenter(width / 2, height / 2);
+		this.toScale(Math.floor(minContainerSize / minPlainSize) || 1, width / 2, height / 2);
 	}
 }
 
-let bmp = new Uint8ArrayX2([
-	0,0,0,5,0,1,4,0,
-	0,1,0,3,0,0,0,0,
-	0,0,2,6,0,7,0,3,
-	0,4,0,2,0,0,6,2,
-	0,2,3,0,4,0,0,5,
-	0,4,7,0,6,5,0,2,
-	0,0,0,7,0,0,0,0,
-	0,1,1,0,5,0,3,1
-], 8).scale(6);
+export const CanvasWorkspace = props => {
 
-const palette = [
-	"white",
-	"black",
-	"tomato",
-	"red",
-	"olive",
-	"green",
-	"cyan",
-	"blue"
-].map(name => CSSNamedColors[name]);
-
-const plain = new CanvasPlain(256, 256, 256, 256, 1, 6);
-
-export const Canvas = props => {
+	const plain = useMemo(() => new CanvasPlain(0, 0, props.initSize, props.initSize), []);
 
 	const canvasRef = useRef(null);
 	const buffRef = useRef({
@@ -105,17 +104,18 @@ export const Canvas = props => {
 
 		if (!rect) return;
 
-		ctx.fillRect(plain.x, plain.y, plain.width, plain.height);
-		ctx.putImageData(bmp.scale(plain.scale).toImageData(palette), plain.x, plain.y);
+		console.log("rect reassignment");
+
+		ctx.clearRect(0, 0, rect.width, rect.height);
+		props.onInit(ctx, plain, rect);
 
 	}, [rect]);
 
 	const handleWheel = e => {
 
-		plain.toScale(-Math.sign(e.deltaY), e.clientX - rect.x, e.clientY - rect.y);
+		plain.toScaleOn(-Math.sign(e.deltaY), e.clientX - rect.x, e.clientY - rect.y);
 		ctx.clearRect(0, 0, rect.width, rect.height);
-		ctx.fillRect(plain.x, plain.y, plain.width, plain.height);
-		ctx.putImageData(bmp.scale(plain.scale).toImageData(palette), plain.x, plain.y);
+		props.onInteraction(ctx, plain, rect);
 	};
 
 	const handleMouseDown = e => {
@@ -129,10 +129,9 @@ export const Canvas = props => {
 
 		if (buffer.mouseDownButton === 1) {
 
-			plain.move(e.clientX - rect.x - buffer.mouseDownDX, e.clientY - rect.y - buffer.mouseDownDY);
+			plain.toMove(e.clientX - rect.x - buffer.mouseDownDX, e.clientY - rect.y - buffer.mouseDownDY);
 			ctx.clearRect(0, 0, rect.width, rect.height);
-			ctx.fillRect(plain.x, plain.y, plain.width, plain.height);
-			ctx.putImageData(bmp.scale(plain.scale).toImageData(palette), plain.x, plain.y);
+			props.onInteraction(ctx, plain);
 		}
 	};
 

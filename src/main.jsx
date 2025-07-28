@@ -7,7 +7,9 @@ import { CreateProject } from "../pages/create-project"
 import { Lab } from "../labs/lab"
 import { Example as BulgedLab } from "../labs/dev-bulged"
 
-import "./style.css"
+import "./style.css";
+
+import "./_test";
 
 export const DOWNLOADER = document.createElement("a");
 

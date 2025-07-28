@@ -1,14 +1,53 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
-import { Canvas } from "../src/Components";
-
-import { Alphanum } from "../src/libs/alphanum";
+import { CanvasWorkspace } from "../src/Components";
+import { QRMX } from "../src/QRMX";
+import { CWData } from "../src/QR";
+import { BinaryAsArray } from "../src/libs/BinaryAsArray";
+import { AlphanumArray } from "../src/libs/Alphanum";
+import { palette } from "../src/palette";
+import { Rect8 } from "../src/libs/Rect8";
 
 export const ProjectEditor = props => {
+
+	const mx = useMemo(() => new QRMX(20), []);
+
+	const bitStream = useMemo(() => {
+
+		return BinaryAsArray
+			.join(
+				new AlphanumArray(9).setStr(3, "R3RR"),
+				new AlphanumArray(4).setStr(2, "4"),
+				new AlphanumArray(6).setStr(1, "FEU"),
+				new AlphanumArray(1).setStr(0, "H")
+			)
+			.assignToInt8(
+				new Uint8Array(CWData[20].L.cw)
+			);
+	}, []);
+
+	const handleInteraction = (ctx, plain) => {
+
+		ctx.putImageData(mx.toImageData(plain.scale, palette), plain.x, plain.y);
+	};
+
+	const handleInit = (ctx, plain, rect) => {
+
+		plain.toMoveCenter(rect.width / 2, rect.height / 2);
+		plain.toFitInto(rect.width, rect.height, 300);
+		plain.resetScaleRange(plain.scale > 1 || 2, 10);
+
+		handleInteraction(ctx, plain);
+	};
+
+	mx.applyBitStream(bitStream, 100);
 
 	return (<>
 		<div className="w-screen h-screen bg-slate-600">
 			<div className="w-3/4 h-full float-left relative">
-				<Canvas
+				<CanvasWorkspace
+					initSize={mx.size}
+					onInit={handleInit}
+					onInteraction={handleInteraction}
 					className="absolute z-0 w-full h-full"
 				/>
 				<div className="absolute inset-0 backdrop-blur-lg radial-mask"></div>

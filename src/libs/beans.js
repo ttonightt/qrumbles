@@ -20,6 +20,13 @@ export const isInt16Array = arr => (
 	arr instanceof Uint16Array
 );
 
+export const bitLength = n => {
+
+	if (n === 0) return 0;
+
+	return Math.floor(Math.log2(n)) + 1;
+};
+
 export const b = (data, pad) => {
 
 	if (typeof data === "number") {
@@ -38,31 +45,63 @@ export const clearLastBits = (num, bitLength) => {
 	return (num >> bitLength) << bitLength;
 };
 
-export const splitByBase = (bitOffset, bitLength, baseLength) => {
+export const hammingDistance = (a, b) => {
 
-	const bitsBeforeOffset = bitOffset % baseLength;
-	const bitsAfterOffset = baseLength - bitsBeforeOffset;
+	if (a === b) return 0;
 
-	const bitEndOffset = bitOffset + bitLength;
+	a ^= b;
+	b = 0;
 
-	const bitsBeforeEndOffset = bitEndOffset % baseLength;
-	const bitsAfterEndOffset = baseLength - bitsBeforeEndOffset;
+	while (a > 0) {
+		if (a % 2) {
+			b++;
+		}
 
-	return [
-		Math.floor(bitOffset / baseLength),
-		bitsBeforeOffset,
-		bitsAfterOffset,
-		(bitLength - bitsAfterOffset - bitsBeforeEndOffset) / baseLength,
-		bitsBeforeEndOffset,
-		bitsAfterEndOffset,
-		Math.floor(bitEndOffset / baseLength)
-	];
+		a >>= 1;
+	}
+
+	return b;
 };
 
-const splitted = splitByBase(11, 15, 8);
+export const generateNearestValid = (code, max) => {
 
-console.log(splitted);
-console.log("|1 0 1 0 0 1 0 0|0 1 0 1 1 1 0 0|1 1 1 0 0 0 1 0|0 1 0 0 0 0 0 0|1 1 0 1 1 1 0 1|");
+	const variants = [];
+
+	for (let i = 0; i < 11; i++) {
+
+		const code_ = code ^ (1 << i);
+
+		if ((code >> i) % 2 && code_ < max) 
+
+			variants.push(code_);
+	}
+
+	return variants;
+};
+
+export const putBits = (trg, src, blen, ffe, ffe0 = 0) => {
+
+	const ff = blen + ffe;
+
+	if (ffe0 < 0) {
+
+		src <<= -ffe0;
+	} else 
+		src >>= ffe0;
+
+	src %= 1 << blen;
+
+	return (
+		((trg >> ff) << ff) +
+		(src << ffe) +
+		(trg % (1 << ffe))
+	);
+};
+
+export const sliceBits = (num, blen, ffe) => {
+
+	return (num >> ffe) % (1 << blen);
+};
 
 export const b8 = data => b(data, 8);
 

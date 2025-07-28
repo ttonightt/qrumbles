@@ -1,3 +1,5 @@
+import { Rect8 } from "./Rect8";
+
 export class Uint8ArrayX2 extends Uint8Array {
 
 	static from (arr) {
@@ -32,31 +34,20 @@ export class Uint8ArrayX2 extends Uint8Array {
 			this.cols = arr.length / rows;
 
 		} else throw new Error("..."); // <<<
+
+		this.width = this.cols;
+		this.height = this.rows;
 	}
 
 	x2get (x = 0, y = 0) {
 		return this[(y * this.cols) + x];
 	}
 
-	x2getD (x = 0, y = 0, wrong) {
-		if (0 <= x && x < this.cols && 0 <= y && y < this.rows) {
-			return this[(y * this.cols) + x];
-		} else {
-			return wrong;
-		}
-	}
-
 	x2set (x = 0, y = 0, int) {
 		this[(y * this.cols) + x] = int;
 	}
 
-	x2setD (x = 0, y = 0, int) {
-		if (0 <= x && x < this.cols && 0 <= y && y < this.rows) {
-			this[(y * this.cols) + x] = int;
-		}
-	}
-
-	cutFrame (x0, y0, width, height) {
+	x2cut (x0, y0, width, height) {
 
 		const frame = new Uint8Array(width * height);
 
@@ -72,62 +63,17 @@ export class Uint8ArrayX2 extends Uint8Array {
 		return frame;
 	}
 
-	applyFrame (frame, x0, y0, fx0 = 0, fy0 = 0, fwidth = frame.cols, fheight = frame.rows) {
+	x2put (intx2, x0, y0, dirtyX = 0, dirtyY = 0, dirtyWidth, dirtyHeight) {
 
-		if (fx0 < 0 || fy0 < 0)
-			throw new Error("..."); // <<<
-
-		if (fwidth + fx0 > frame.cols) {
-
-			fwidth = frame.cols - fx0;
-
-		} else if (fwidth + x0 > this.cols) {
-
-			fwidth = this.cols - x0;
-		}
-
-		if (fheight + fy0 > frame.rows) {
-
-			fheight = frame.rows - fy0;
-
-		} else if (fheight + y0 > this.rows) {
-
-			fheight = this.rows - y0;
-		}
-
-		if (x0 < 0) {
-
-			if (-x0 < fwidth) {
-
-				fx0 += -x0;
-				fwidth -= -x0;
-				x0 = 0;
-
-			} else
-				return;
-
-		} else if (x0 > this.cols)
-			return;
-
-		if (y0 < 0) {
-
-			if (-y0 < fheight) {
-
-				fy0 += -y0;
-				fheight -= -y0;
-				y0 = 0;
-
-			} else
-				return;
-		} else if (y0 > this.rows)
-			return;
+		dirtyWidth ||= intx2.width;
+		dirtyHeight ||= intx2.height;
 
 		let x, y;
 
-		for (y = 0; y < fheight; y++) {
-			for (x = 0; x < fwidth; x++) {
+		for (y = 0; y < dirtyHeight; y++) {
+			for (x = 0; x < dirtyWidth; x++) {
 
-				this[((y + y0) * this.cols) + (x + x0)] = frame[((y + fy0) * frame.cols) + (x + fx0)];
+				this.x2set(x + x0, y + y0, intx2.x2get(x + dirtyX, y + dirtyY));
 			}
 		}
 	}
@@ -159,22 +105,6 @@ export class Uint8ArrayX2 extends Uint8Array {
 				smx.x2fill(this.x2get(dx, dy), dx * scale, dy * scale, scale, scale);
 
 		return smx;
-	}
-
-	toImageData (palette) {
-
-		const imd = new ImageData(this.cols, this.rows);
-		const data = imd.data;
-
-		for (let i = 0; i < this.length; i++) {
-
-			data[   i * 4   ] = palette[this[i]][0];
-			data[(i * 4) + 1] = palette[this[i]][1];
-			data[(i * 4) + 2] = palette[this[i]][2];
-			data[(i * 4) + 3] = 255;
-		}
-
-		return imd;
 	}
 
 	toString () {

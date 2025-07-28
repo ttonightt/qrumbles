@@ -149,3 +149,8 @@ export const CSSNamedColors = {
 	yellow: [255, 255, 0],
 	yellowgreen: [154, 205, 50]
 };
+
+const toRGB = code => {
+
+	return;
+};
