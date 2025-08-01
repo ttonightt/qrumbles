@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
-import { CanvasWorkspace } from "../src/Components";
-import { QRMX } from "../src/QRMX";
-import { CWData } from "../src/QR";
-import { BinaryAsArray } from "../src/libs/BinaryAsArray";
-import { AlphanumArray } from "../src/libs/Alphanum";
-import { palette } from "../src/palette";
-import { Rect8 } from "../src/libs/Rect8";
+import { CanvasWorkspace } from "../Components";
+import { QRMX } from "../QRMX";
+import { CWData } from "../QR";
+import { BinaryAsArray } from "../libs/BinaryAsArray";
+import { AlphanumArray } from "../libs/Alphanum";
+import { palette } from "../palette";
+import { Rect8 } from "../libs/Rect8";
 
 export const ProjectEditor = props => {
 

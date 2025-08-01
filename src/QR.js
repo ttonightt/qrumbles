@@ -274,9 +274,9 @@ const interleave = (int8, version, errcor) => {
 			const [mx1, mx2] = separate(arr, (n, i) => i < g1bytes && (i + 1) % group2[1]);
 		}
 
-		const delta = ;
+		//const delta = ;
 
-		const rect1 = {x0: };
+		//const rect1 = {x0: };
 
 		const bstr = new Uint8Array();
 
@@ -300,7 +300,7 @@ const interleave = (int8, version, errcor) => {
 	} else throw new Error("Codeword length doesn't match the required!\n" + cws.length + " !== " + parseInt((g1rows * g1cols) + (g2rows * (g1cols + 1))) + " (" + g1rows + " * " + g1cols + " + " + g2rows + " * " + parseInt(g1cols + 1) + ")"); // <<<
 };
 
-export const BitStream = (int8, version) => {
+export const uninterleave = (int8, version) => {
 
 	if (cws instanceof CodewordArray && cws.length === (g1rows * g1cols) + (g2rows * (g1cols + 1))) {
 
@@ -322,7 +322,7 @@ export const BitStream = (int8, version) => {
 	} else throw new Error("..."); // <<<
 };
 
-export const QRErrorCodewords = (int8, version) => {
+export const errorCodewords = (int8, version) => {
 
 	if (datacws instanceof CodewordArray && datacws.length === this.info.dataBytes)
 		throw new Error("..."); // <<<

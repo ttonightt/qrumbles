@@ -1,6 +1,6 @@
 import { useState, useRef, useReducer, useEffect } from "react";
-import { generateBulged } from "../src/libs/bulged";
-import { DOWNLOADER } from "../src/main";
+import { generateBulged } from "../libs/bulged";
+import { DOWNLOADER } from "../main";
 
 
 

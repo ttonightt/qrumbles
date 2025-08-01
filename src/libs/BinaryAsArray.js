@@ -66,6 +66,8 @@ export class BinaryAsArray {
 		this.bitLength = bitLength;
 		this.bytes = new Uint8Array(Math.ceil(this.bitLength / 8));
 		this.padBits = this.bytes.length * 8 - this.bitLength;
+
+		this.type = "binary";
 	}
 
 	assignToInt8 (target) {
