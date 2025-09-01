@@ -1,128 +1,28 @@
-import { putBits, sliceBits, b8, bitOffset8, b, clearLastBits, ones } from "./beans";
+import { putBits, sliceBits, b8, bitOffset8, b, clearLastBits, ones, bitLength, isIntArray } from "./beans";
 
 export class BinaryAsArray {
 
-	static join (...bins) {
+	static join (...bitArrays) {
 
-		const fullLength = bins.reduce((sum, bin) => {
+		const fullLength = bitArrays.reduce(( sum, bitArray ) => {
 
-			if (!(bin instanceof BinaryAsArray)) throw new Error("...");
+			if ( !(bitArray instanceof BinaryAsArray) ) throw new Error("...");
 
 			return sum + bin.bitLength;
 		}, 0);
 
 		const full = new BinaryAsArray(fullLength);
 
-		let k = 0;
+		let t = 0;
 
-		for (const bin of bins) {
+		for (const bitArray of bitArrays) {
 
-			let ff = 0;
+			this.transferBits(full, bitArray, t);
 
-			while (ff < bin.bitLength) {
-	
-				const ff8 = bitOffset8(ff);
-
-				const k8 = bitOffset8(k);
-
-				const buffBitLength = Math.min(
-					ff8[2],
-					bin.bitLength - ff,
-					k8[2]
-				);
-
-				const buff = bin.bytes[ ff8[1] ] >> (ff8[2] - buffBitLength);
-
-				full.bytes[ k8[1] ] += buff << (k8[2] - buffBitLength);
-
-				ff += buffBitLength;
-				k += buffBitLength;
-			}
+			t += bitArray.bitLength;
 		}
 
 		return full;
-	}
-
-	constructor (bitLength) {
-
-		if (bitLength <= 0) throw new TypeError("...");
-
-		this.bitLength = bitLength;
-		this.bytes = new Uint8Array(Math.ceil(this.bitLength / 8));
-		this.padBits = this.bytes.length * 8 - this.bitLength;
-
-		this.type = "binary";
-	}
-
-	assignToInt8 (target) {
-
-		let i = 0;
-
-		for (i; i < this.bytes.length - 1; i++) {
-
-			target[i] = this.bytes[i];
-		}
-
-		if (8 - this.padBits) {
-
-			target[i] = (this.bytes[i] >> this.padBits) + (target[i] % (1 << this.padBits));
-		}
-
-		return target;
-	}
-
-	putInt (ff, blen, int) {
-
-		if (ff >= this.bitLength) return this;
-
-		if (blen + ff >= this.bitLength)
-
-			blen = this.bitLength - ff;
-
-		int %= 1 << blen;
-
-		const b0 = bitOffset8(ff);
-		const b = bitOffset8(ff + blen);
-
-		this.bytes[b0[1]] = putBits(this.bytes[b0[1]], int, b0[2], 0, blen - b0[2]);
-
-		for (let j = 1; j < b[1] - b0[1]; j++)
-
-			this.bytes[j + b0[1]] = sliceBits(int, 8, b[0] + ((j - 1) * 8));
-
-		this.bytes[b[1]] = putBits(this.bytes[b[1]], int, b[0], b[2]);
-
-		return this;
-	}
-
-	cutInt (ff, blen) {
-
-		if (ff >= this.bitLength) return undefined;
-
-		if (blen + ff >= this.bitLength)
-
-			blen = this.bitLength - ff;
-
-		const b0 = bitOffset8(ff);
-		const b = bitOffset8(ff + blen);
-
-		let int = sliceBits(this.bytes[ b0[1] ], b0[2], 0);
-
-		console.log(int.toString(2));
-
-		for (let j = b0[1] + 1; j < b[1]; j++) {
-
-			int <<= 8;
-			int += this.bytes[j];
-		}
-
-		if (b[0] && b0[1] < b[1]) {
-
-			int <<= b[0];
-			int += sliceBits(this.bytes[b[1]], b[0], b[2]);
-		}
-
-		return int;
 	}
 
 	static transferBits (target, source, t0, blen, s0 = 0) {
@@ -130,17 +30,17 @@ export class BinaryAsArray {
 		if ( !(target instanceof BinaryAsArray) ) throw `target argument must be an instance of BinaryAsArray`;
 		if ( !(source instanceof BinaryAsArray) ) throw `source argument must be an instance of BinaryAsArray`;
 		if ( !(0 <= t0 && t0 < target.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
+		if ( !(blen === undefined || blen > 0) ) throw `blen argument is out of range (must be > 0 if provided)`;
 
-		blen = Math.min(
+		const fit = Math.min(
 			target.bitLength - t0,
-			source.bitLength - s0,
-			blen
+			source.bitLength - s0
 		);
 		
 		let t = t0;
 		let s = s0;
 
-		const se = blen + s0;
+		const se = s0 + ( blen === undefined ? fit : Math.min(blen) );
 
 		while (s < se) {
 
@@ -168,116 +68,63 @@ export class BinaryAsArray {
 		}
 	}
 
-	putBitArray (src, k0) {
+	static fromInt (arr, padBits = 0) {
 
-		if (k0 >= this.bitLength) return this;
+		if ( isIntArray(arr) ) {
 
-		const blen =
-			src.bitLength + k0 >= this.bitLength
-			?
-			this.bitLength - k0
-			:
-			src.bitLength;
+			padBits %= 8;
 
-		let k = k0;
-		let ff = 0;
+			const arr_ = new BinaryAsArray(arr.length * 8 - padBits);
 
-		while (ff < blen) {
+			for (let i = 0; i < arr.length; i++)
 
-			const ff8 = bitOffset8(ff);
+				arr_[i] = arr[i];
 
-			const k8 = bitOffset8(k);
-
-			const buffBitLength = Math.min(
-				ff8[2],
-				blen - ff,
-				k8[2]
-			);
-
-			const srcShift = ff8[2] - buffBitLength;
-			const trgShift = k8[2] - buffBitLength;
-
-			const buff = src.bytes[ ff8[1] ] >> srcShift;
-
-			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
-
-			this.bytes[ k8[1] ] = ( this.bytes[ k8[1] ] & mask ) + ( buff << trgShift );
-
-			ff += buffBitLength;
-			k += buffBitLength;
+			return arr_;
 		}
+		else if (arr instanceof Array) {
+
+			padBits %= 8;
+
+			const arr_ = new BinaryAsArray(arr.length * 8 - padBits);
+
+			for (let i = 0; i < arr.length; i++) {
+
+				if ( typeof arr[i] !== "number" )
+					
+					throw `BinaryAsArray cannot be created from Array with children ${arr[i]}`;
+
+				arr_[i] = arr[i];
+			}
+
+			return arr_;
+		}
+
+		throw `Unknows type of arr argument: ${arr}`;
 	}
 
-	cutBitArray (ff0, blen) {
+	constructor (bitLength) {
 
-		const target = new BinaryAsArray(blen);
+		if (bitLength <= 0) throw new TypeError("...");
 
-		let k = 0;
-		let ff = ff0;
-		const ffe = blen + ff0;
+		this.bitLength = bitLength;
+		this.bytes = new Uint8Array(Math.ceil(this.bitLength / 8));
+		this.padBits = this.bytes.length * 8 - this.bitLength;
 
-		while (ff < ffe) {
+		this.type = "binary";
+	}
 
-			const ff8 = bitOffset8(ff);
+	putBitArray (source, t0, blen, s0 = 0) {
 
-			const k8 = bitOffset8(k);
+		BinaryAsArray.transferBits(this, source, t0, blen, s0);
+	}
 
-			const buffBitLength = Math.min(
-				ff8[2],
-				ffe - ff,
-				k8[2]
-			);
+	cutBitArray (s0, blen) {
 
-			const srcShift = ff8[2] - buffBitLength;
-			const trgShift = k8[2] - buffBitLength;
+		const target = new BinaryAsArray(blen ?? this.bitLength);
 
-			const buff = this.bytes[ ff8[1] ] >> srcShift;
-
-			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
-
-			target.bytes[ k8[1] ] = ( target.bytes[ k8[1] ] & mask ) + ( buff << trgShift );
-
-			ff += buffBitLength;
-			k += buffBitLength;
-		}
+		BinaryAsArray.transferBits(target, this, 0, blen, s0);
 
 		return target;
 	}
 }
-
-for (let i = 0; i < 36; i++) {
-
-	const arr1 = new BinaryAsArray(35);
-
-	arr1.bytes[0] = 0b11111111;
-	arr1.bytes[1] = 0b11111111;
-	arr1.bytes[2] = 0b11111111;
-	arr1.bytes[3] = 0b11111111;
-	arr1.bytes[4] = 0b11100000;
-
-	const arr2 = new BinaryAsArray(4);
-
-	arr2.bytes[0] = 0b01100000;
-
-	arr1.putBitArray(arr2, i);
-
-	console.log(b8(arr1.bytes).join().replaceAll(",", ""));
-}
-
-
-const arr1 = new BinaryAsArray(35);
-
-arr1.bytes[0] = 0b10101010;
-arr1.bytes[1] = 0b01010101;
-arr1.bytes[2] = 0b11001100;
-arr1.bytes[3] = 0b00110011;
-arr1.bytes[4] = 0b11100000;
-
-const arr2 = new BinaryAsArray(13);
-
-arr2.bytes[0] = 0b11111111;
-arr2.bytes[1] = 0b11111000;
-
-BinaryAsArray.transferBits(arr1, arr2, 3, 8, 10);
-
-console.log(b8(arr1.bytes).join().replaceAll(",", ""));
