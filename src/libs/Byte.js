@@ -1,4 +1,4 @@
-import { bitLength } from "./beans";
+import { b, b8, binole, bitLength, destructByBase, sliceBits, splitByBase } from "./beans";
 import { BinaryAsArray } from "./BinaryAsArray";
 
 export const Windows1250 = {
@@ -45,6 +45,38 @@ export const Latin2 = {
 		return this.__ref[i];
 	}
 };
+
+export const UTF8 = {
+
+	charToCode (c) {
+
+		const blen = bitLength(c);
+
+	},
+
+	codeToChar () {
+		
+	}
+};
+
+//console.log(destructByBase(0xffff, 0x40, 0x40).map(n => b(n)));
+
+//const arrays = [
+//	new BinaryAsArray(12).putInt(0, 12, 0xfff),
+//	new BinaryAsArray(4).putInt(0, 4, 0xf),
+//	new BinaryAsArray(25).putInt(0, 25, 0x1fffffa),
+//	new BinaryAsArray(7).putInt(0, 7, 0x5a),
+//	new BinaryAsArray(8).putInt(0, 8, 0xaa)
+//];
+
+//console.log([0xfff, 0xf, 0x1fffffa, 0x5a, 0xaa].map(n => b(n)));
+//console.log([0xfff, 0xf, 0x1fffffa, 0x5a, 0xaa].map(n => bitLength(n)));
+//console.log(arrays.map( arr => arr.bitLength ));
+////console.log(arrays.map( arr => b8(arr.bytes) ));
+//console.log(arrays.map( arr => b(arr.cutInt(0, arr.bitLength)) ));
+//console.log(b8(BinaryAsArray.join(...arrays).bytes));
+
+//console.log(b(sliceBits(0xffff, 4, 4)));
 
 export const Byte = {
 

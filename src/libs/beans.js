@@ -103,6 +103,8 @@ export const sliceBits = (num, blen, ffe) => {
 	return (num >> ffe) % (1 << blen);
 };
 
+export const ones = n => (1 << n) - 1;
+
 export const b8 = data => b(data, 8);
 
 export const binole = {
@@ -135,4 +137,53 @@ export const binole = {
 
 		return console.warn(...this.__2bin(args));
 	}
+};
+
+export const bitOffset8 = (ff) => {
+
+	return [
+		ff % 8,
+		Math.floor(ff / 8),
+		8 - (ff % 8)
+	];
+}
+
+
+
+export const destructByBase = (num, ...bases) => {
+
+	const pieces = [];
+
+	let buff = 1;
+
+	for (let i = 0; i < bases.length; i++) {
+
+		pieces.push((num % bases[i]) * buff);
+		num = Math.floor(num / bases[i]);
+
+		buff *= bases[i];
+	}
+
+	pieces.push(num * buff);
+
+	return pieces.reverse();
+};
+
+export const splitByBase = (num, ...bases) => {
+
+	const pieces = [];
+
+	let buff = 1;
+
+	for (let i = 0; i < bases.length; i++) {
+
+		pieces.push(num % bases[i]);
+		num = Math.floor(num / bases[i]);
+
+		buff *= bases[i];
+	}
+
+	pieces.push(num);
+
+	return pieces.reverse();
 };

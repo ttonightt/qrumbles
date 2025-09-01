@@ -1,4 +1,4 @@
-import { b, b8, binole } from "./beans";
+import { b, b8, binole, destructByBase } from "./beans";
 
 import { BinaryAsArray } from "./BinaryAsArray";
 
@@ -23,28 +23,9 @@ export const Numerical = {
 	}
 };
 
-const splitByBase = (num, ...bases) => {
-
-	const pieces = [];
-
-	let buff = 1;
-
-	for (let i = 0; i < bases.length; i++) {
-
-		pieces.push((num % bases[i]) * buff);
-		num = Math.floor(num / bases[i]);
-
-		buff *= bases[i];
-	}
-
-	pieces.push(num * buff);
-
-	return pieces.reverse();
-};
-
 // const mod = 1;
 
-// console.log(splitByBase(329, 10 ** mod)[0]);
+// console.log(destructByBase(329, 10 ** mod)[0]);
 
 export class NumericalArray extends BinaryAsArray {
 
@@ -113,7 +94,7 @@ export class NumericalArray extends BinaryAsArray {
 
 			const ri = 3 - (i % 3);
 
-			const target = splitByBase(
+			const target = destructByBase(
 
 				this.cutInt(j * 10, 10),
 				10 ** ri
@@ -137,14 +118,14 @@ export class NumericalArray extends BinaryAsArray {
 				this.putInt(mj * 10, 10,
 					parseInt(str.slice(-1), 10) * 100
 					+
-					splitByBase(this.cutInt(mj * 10, 10), 100)[1]
+					destructByBase(this.cutInt(mj * 10, 10), 100)[1]
 				);
 				break;
 			case 23:
 				this.putInt(mj * 10, 10,
 					parseInt(str.slice(-2), 10) * 10
 					+
-					splitByBase(this.cutInt(mj * 10, 10), 10)[1]
+					destructByBase(this.cutInt(mj * 10, 10), 10)[1]
 				);
 				break;
 			case 22:
@@ -156,7 +137,7 @@ export class NumericalArray extends BinaryAsArray {
 				this.putInt(mj * 10, 7,
 					parseInt(str.slice(-1), 10) * 10
 					+
-					splitByBase(this.cutInt(mj * 10, 7), 10)[1]
+					destructByBase(this.cutInt(mj * 10, 7), 10)[1]
 				);
 				break;
 			case 11:

@@ -52,39 +52,6 @@ export class AlphanumArray extends BinaryAsArray {
 		return (11 * (len - lenM2) / 2) + (6 * lenM2);
 	}
 
-	static encode (str) {
-
-		const len = Math.floor(str.length / 2);
-
-		const arr16 = new Uint16Array(len + (str.length % 2));
-
-		let i = 0;
-
-		for (i; i < len; i++) {
-
-			arr16[i] = Alphanum.charToCode(str[i * 2]) * 45 + Alphanum.charToCode(str[i * 2 + 1]);
-		}
-
-		if (str.length % 2) {
-
-			arr16[i] = Alphanum.charToCode(str[i * 2]);
-		}
-
-		return arr16;
-	}
-
-	static decode (int16) {
-
-		let str = "";
-
-		for (const int of int16) {
-
-			str += Alphanum.codeToChar(Math.floor(int / 45)) + Alphanum.codeToChar(int % 45);
-		}
-
-		return str;
-	}
-
 	constructor (len) {
 
 		super(AlphanumArray.bitLengthOf(len));

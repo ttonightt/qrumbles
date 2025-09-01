@@ -1,13 +1,4 @@
-import { putBits, sliceBits, b8 } from "./beans";
-
-export const bitOffset8 = (ff) => {
-
-	return [
-		ff % 8,
-		Math.floor(ff / 8),
-		8 - (ff % 8)
-	];
-}
+import { putBits, sliceBits, b8, bitOffset8, b, clearLastBits, ones } from "./beans";
 
 export class BinaryAsArray {
 
@@ -30,22 +21,19 @@ export class BinaryAsArray {
 
 			while (ff < bin.bitLength) {
 	
-				const ffB = Math.floor(ff / 8);
-				const _ffb = ff % 8;
-				const ffb_ = 8 - _ffb;
+				const ff8 = bitOffset8(ff);
 
-				const kB = Math.floor(k / 8);
-				const kb_ = 8 - (k % 8);
+				const k8 = bitOffset8(k);
 
 				const buffBitLength = Math.min(
-					ffb_,
+					ff8[2],
 					bin.bitLength - ff,
-					kb_
+					k8[2]
 				);
 
-				const buff = bin.bytes[ffB] >> (ffb_ - buffBitLength);
+				const buff = bin.bytes[ ff8[1] ] >> (ff8[2] - buffBitLength);
 
-				full.bytes[kB] += buff << (kb_ - buffBitLength);
+				full.bytes[ k8[1] ] += buff << (k8[2] - buffBitLength);
 
 				ff += buffBitLength;
 				k += buffBitLength;
@@ -53,10 +41,6 @@ export class BinaryAsArray {
 		}
 
 		return full;
-	}
-
-	static fromQRVersion () {
-
 	}
 
 	constructor (bitLength) {
@@ -122,7 +106,9 @@ export class BinaryAsArray {
 		const b0 = bitOffset8(ff);
 		const b = bitOffset8(ff + blen);
 
-		let int = sliceBits(this.bytes[b0[1]], b0[2], 0);
+		let int = sliceBits(this.bytes[ b0[1] ], b0[2], 0);
+
+		console.log(int.toString(2));
 
 		for (let j = b0[1] + 1; j < b[1]; j++) {
 
@@ -130,9 +116,168 @@ export class BinaryAsArray {
 			int += this.bytes[j];
 		}
 
-		int <<= b[0];
-		int += sliceBits(this.bytes[b[1]], b[0], b[2]);
+		if (b[0] && b0[1] < b[1]) {
+
+			int <<= b[0];
+			int += sliceBits(this.bytes[b[1]], b[0], b[2]);
+		}
 
 		return int;
 	}
+
+	static transferBits (target, source, t0, blen, s0 = 0) {
+
+		if ( !(target instanceof BinaryAsArray) ) throw `target argument must be an instance of BinaryAsArray`;
+		if ( !(source instanceof BinaryAsArray) ) throw `source argument must be an instance of BinaryAsArray`;
+		if ( !(0 <= t0 && t0 < target.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
+
+		blen = Math.min(
+			target.bitLength - t0,
+			source.bitLength - s0,
+			blen
+		);
+		
+		let t = t0;
+		let s = s0;
+
+		const se = blen + s0;
+
+		while (s < se) {
+
+			const s8 = bitOffset8(s);
+
+			const t8 = bitOffset8(t);
+
+			const buffBitLength = Math.min(
+				s8[2],
+				se - s,
+				t8[2]
+			);
+
+			const srcShift = s8[2] - buffBitLength;
+			const trgShift = t8[2] - buffBitLength;
+
+			const buff = ( source.bytes[ s8[1] ] >> srcShift ) & ones(buffBitLength);
+
+			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
+
+			target.bytes[ t8[1] ] = ( target.bytes[ t8[1] ] & mask ) + ( buff << trgShift );
+
+			s += buffBitLength;
+			t += buffBitLength;
+		}
+	}
+
+	putBitArray (src, k0) {
+
+		if (k0 >= this.bitLength) return this;
+
+		const blen =
+			src.bitLength + k0 >= this.bitLength
+			?
+			this.bitLength - k0
+			:
+			src.bitLength;
+
+		let k = k0;
+		let ff = 0;
+
+		while (ff < blen) {
+
+			const ff8 = bitOffset8(ff);
+
+			const k8 = bitOffset8(k);
+
+			const buffBitLength = Math.min(
+				ff8[2],
+				blen - ff,
+				k8[2]
+			);
+
+			const srcShift = ff8[2] - buffBitLength;
+			const trgShift = k8[2] - buffBitLength;
+
+			const buff = src.bytes[ ff8[1] ] >> srcShift;
+
+			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
+
+			this.bytes[ k8[1] ] = ( this.bytes[ k8[1] ] & mask ) + ( buff << trgShift );
+
+			ff += buffBitLength;
+			k += buffBitLength;
+		}
+	}
+
+	cutBitArray (ff0, blen) {
+
+		const target = new BinaryAsArray(blen);
+
+		let k = 0;
+		let ff = ff0;
+		const ffe = blen + ff0;
+
+		while (ff < ffe) {
+
+			const ff8 = bitOffset8(ff);
+
+			const k8 = bitOffset8(k);
+
+			const buffBitLength = Math.min(
+				ff8[2],
+				ffe - ff,
+				k8[2]
+			);
+
+			const srcShift = ff8[2] - buffBitLength;
+			const trgShift = k8[2] - buffBitLength;
+
+			const buff = this.bytes[ ff8[1] ] >> srcShift;
+
+			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
+
+			target.bytes[ k8[1] ] = ( target.bytes[ k8[1] ] & mask ) + ( buff << trgShift );
+
+			ff += buffBitLength;
+			k += buffBitLength;
+		}
+
+		return target;
+	}
 }
+
+for (let i = 0; i < 36; i++) {
+
+	const arr1 = new BinaryAsArray(35);
+
+	arr1.bytes[0] = 0b11111111;
+	arr1.bytes[1] = 0b11111111;
+	arr1.bytes[2] = 0b11111111;
+	arr1.bytes[3] = 0b11111111;
+	arr1.bytes[4] = 0b11100000;
+
+	const arr2 = new BinaryAsArray(4);
+
+	arr2.bytes[0] = 0b01100000;
+
+	arr1.putBitArray(arr2, i);
+
+	console.log(b8(arr1.bytes).join().replaceAll(",", ""));
+}
+
+
+const arr1 = new BinaryAsArray(35);
+
+arr1.bytes[0] = 0b10101010;
+arr1.bytes[1] = 0b01010101;
+arr1.bytes[2] = 0b11001100;
+arr1.bytes[3] = 0b00110011;
+arr1.bytes[4] = 0b11100000;
+
+const arr2 = new BinaryAsArray(13);
+
+arr2.bytes[0] = 0b11111111;
+arr2.bytes[1] = 0b11111000;
+
+BinaryAsArray.transferBits(arr1, arr2, 3, 8, 10);
+
+console.log(b8(arr1.bytes).join().replaceAll(",", ""));
