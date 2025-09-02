@@ -159,6 +159,23 @@ describe("BinaryAsArray", () => {
 		});
 	});
 
+	describe("getInt", () => {
+
+		test("arr1 0 20", () => {
+
+			const arr = getInit()[0];
+
+			expect( arr.getInt(0, 20) ).toBe(0b10101010001101011100);
+		});
+
+		test("arr1 13 20", () => {
+
+			const arr = getInit()[0];
+
+			expect( arr.getInt(13, 20) ).toBe(0b10111001100010101010);
+		});
+	});
+
 	describe("static join", () => {
 
 		test("all init", () => {
@@ -168,6 +185,93 @@ describe("BinaryAsArray", () => {
 			deepEqualIntArrays(
 				BinaryAsArray.join(...arrs).bytes,
 				[0b10101010, 0b00110101, 0b11001100, 0b01010101, 0b00111110, 0b00001011, 0b01011010, 0b11001000]
+			);
+		});
+	});
+
+	describe("static from", () => {
+
+		test("arr1.bytes", () => {
+
+			const arr = getInit()[0];
+
+			const res = BinaryAsArray.from( arr.bytes );
+
+			expect( res.bitLength ).toBe(40);
+
+			deepEqualIntArrays(
+				res.bytes,
+				arr.bytes
+			);
+		});
+
+		test("arr1", () => {
+
+			const arr = getInit()[0];
+
+			const res = BinaryAsArray.from( arr );
+
+			expect( res.bitLength ).toBe(35);
+
+			deepEqualIntArrays(
+				res.bytes,
+				arr.bytes
+			);
+		});
+
+		test("arr1.bytes 17", () => {
+
+			const arr = getInit()[0];
+
+			const res = BinaryAsArray.from( arr.bytes, 17 );
+
+			expect( res.bitLength ).toBe(17);
+
+			deepEqualIntArrays(
+				res.bytes,
+				[0b10101010, 0b00110101, 0b10000000]
+			);
+		});
+
+		test("arr1 21", () => {
+
+			const arr = getInit()[0];
+
+			const res = BinaryAsArray.from( arr, 21 );
+
+			expect( res.bitLength ).toBe(21);
+
+			deepEqualIntArrays(
+				res.bytes,
+				[0b10101010, 0b00110101, 0b11001000]
+			);
+		});
+
+		test("arr1.bytes 50", () => {
+
+			const arr = getInit()[0];
+
+			const res = BinaryAsArray.from( arr.bytes, 50 );
+
+			expect( res.bitLength ).toBe(50);
+
+			deepEqualIntArrays(
+				res.bytes,
+				[0b10101010, 0b00110101, 0b11001100, 0b01010101, 0b00100000, 0, 0]
+			);
+		});
+
+		test("arr1 50", () => {
+
+			const arr = getInit()[0];
+
+			const res = BinaryAsArray.from( arr, 50 );
+
+			expect( res.bitLength ).toBe(50);
+
+			deepEqualIntArrays(
+				res.bytes,
+				[0b10101010, 0b00110101, 0b11001100, 0b01010101, 0b00100000, 0, 0]
 			);
 		});
 	});

@@ -1,4 +1,4 @@
-import { putBits, sliceBits, b8, bitOffset8, b, clearLastBits, ones, bitLength, isIntArray } from "./beans";
+import { putBits, sliceBits, b8, bitOffset8, b, clearLastBits, ones, bitLength, isIntArray, isInt8Array } from "./beans";
 
 export class BinaryAsArray {
 
@@ -32,20 +32,21 @@ export class BinaryAsArray {
 		if ( !(0 <= t0 && t0 < target.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
 		if ( !(blen === undefined || blen > 0) ) throw `blen argument is out of range (must be > 0 if provided)`;
 
-		const fit = Math.min(
+		const blen_ = Math.min(
 			target.bitLength - t0,
 			source.bitLength - s0
 		);
+
+		const blen__ = blen === undefined ? blen_ : Math.min(blen_, blen);
 		
 		let t = t0;
 		let s = s0;
 
-		const se = s0 + ( blen === undefined ? fit : Math.min(fit, blen) );
+		const se = s0 + blen__;
 
 		while (s < se) {
 
 			const s8 = bitOffset8(s);
-
 			const t8 = bitOffset8(t);
 
 			const buffBitLength = Math.min(
@@ -68,45 +69,37 @@ export class BinaryAsArray {
 		}
 	}
 
-	static fromIntArray (arr, padBits = 0) {
+	static from (_arr, bitLength) {
 
-		if ( isIntArray(arr) ) {
+		if ( !(bitLength === undefined || bitLength > 0) ) throw `bitLength argument is out of range (must be > 0 if provided)`;
 
-			padBits %= 8;
+		let arr, blen;
 
-			const arr_ = new BinaryAsArray(arr.length * 8 - padBits);
+		if ( isInt8Array(_arr) ) {
 
-			for (let i = 0; i < arr.length; i++)
-
-				arr_[i] = arr[i];
-
-			return arr_;
+			arr = _arr;
+			blen = _arr.length * 8;
 		}
+		else if ( _arr instanceof BinaryAsArray ) {
 
-		throw `Unsupported type of arr argument: ${arr}`;
-	}
-
-	static fromArray (arr, padBits = 0) {
-		
-		if (arr instanceof Array) {
-
-			padBits %= 8;
-
-			const arr_ = new BinaryAsArray(arr.length * 8 - padBits);
-
-			for (let i = 0; i < arr.length; i++) {
-
-				if ( typeof arr[i] !== "number" )
-					
-					throw `BinaryAsArray cannot be created from Array with such an item: ${arr[i]}`;
-
-				arr_[i] = arr[i];
-			}
-
-			return arr_;
+			arr = _arr.bytes;
+			blen = _arr.bitLength;
 		}
+		else throw `Unsupported type of arr argument, must either from another BinaryAsArray or typed IntArray! Got: ${arr}`;
 
-		throw `Unsupported type of arr argument: ${arr}`;
+
+		const blen_ = bitLength || blen;
+		const arr_ = new BinaryAsArray(blen_);
+
+		const minlen = Math.min(arr_.bytes.length, arr.length);
+
+		for (let i = 0; i < minlen; i++)
+
+			arr_.bytes[i] = arr[i];
+
+		arr_.bytes[ arr_.bytes.length - 1 ] = clearLastBits( arr_.bytes[ minlen - 1 ], (arr_.bytes.length * 8) - blen_ );
+
+		return arr_;
 	}
 
 	constructor (bitLength) {
@@ -153,6 +146,39 @@ export class BinaryAsArray {
 		}
 
 		return this;
+	}
+
+	getInt (s0, blen) {
+
+		if ( blen <= 0 ) throw `passed blen argument (bit range) is out of range (must be <= 52 and > 0)!`;
+		if ( blen > 52 ) throw `passed blen argument (bit range) is too wide to capture safe integer (must be <= 52 and > 0)! The preciosion of output may be lost! Split the number on pieces or int array`;
+		if ( !(0 <= s0 && s0 < this.bitLength) ) throw `s0 argument is out of range (must be >= 0 and < array bitLength)`;
+		if ( !(blen > 0 && blen < this.bitLength - s0) ) throw `blen argument is out of range (must be > 0 and < array bitLength - t0)`;
+
+		let s = s0;
+
+		let int = 0;
+
+		const se = s0 + blen;
+
+		while (s < se) {
+
+			const s8 = bitOffset8(s);
+
+			const buffBitLength = Math.min(
+				s8[2],
+				se - s
+			);
+
+			const srcShift = s8[2] - buffBitLength;
+
+			int <<= buffBitLength;
+			int += ( this.bytes[ s8[1] ] >> srcShift ) & ones(buffBitLength);
+
+			s += buffBitLength;
+		}
+
+		return int;
 	}
 
 	putBitArray (source, t0, blen, s0 = 0) {
