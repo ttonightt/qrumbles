@@ -41,18 +41,31 @@ export const bitLength = n => {
 	return Math.floor(Math.log2(n)) + 1;
 };
 
-export const b = (data, pad) => {
+const __b = (data, pad, I) => {
+
+	if (I > 10) return data;
 
 	if (typeof data === "number") {
 
 		return data.toString(2).padStart(pad, "0");
 	}
-	else if (isIntArray(data)) {
 
-		return Array.from(data).map(n => b(n, pad));
+	if ( Array.isArray(data) || isIntArray(data) ) {
+
+		const arr = [];
+
+		for (let i = 0; i < data.length; i++) {
+
+			arr.push( __b(data[i], pad, I + 1) );
+		}
+
+		return arr;
 	}
-		throw new Error("...");
+
+	return data;
 };
+
+export const b = (data, pad) => __b(data, pad, 0);
 
 export const clearLastBits = (num, bitLength) => {
 
