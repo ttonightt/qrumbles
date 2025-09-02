@@ -1,27 +1,26 @@
 import { describe, expect, assert, test } from "vitest";
+import { deepEqualIntArrays } from "./commons";
 
 import { BinaryAsArray } from "../src/libs/BinaryAsArray";
 import { b8, b } from "../src/libs/beans";
-
-const deepEqualIntArrays = (opt1, opt2) => {
-
-	console.log( b8(opt1) );
-	console.log( b8(opt2) );
-
-	return assert.deepEqual( Array.from(opt1), Array.from(opt2) );
-};
 
 const getInit = () => {
 
 	const arr1 = new BinaryAsArray(35);
 	const arr2 = new BinaryAsArray(15);
+	const arr3 = new BinaryAsArray(7);
+	const arr4 = new BinaryAsArray(4);
 
 	arr1.bytes = new Uint8Array([ 0b10101010, 0b00110101, 0b11001100, 0b01010101, 0b00100000 ]);
 	arr2.bytes = new Uint8Array([ 0b11110000, 0b01011010 ]);
+	arr3.bytes = new Uint8Array([ 0b01101010 ]);
+	arr4.bytes = new Uint8Array([ 0b10010000 ]);
 
 	return [
 		arr1,
-		arr2
+		arr2,
+		arr3,
+		arr4
 	];
 };
 
@@ -104,7 +103,7 @@ describe("BinaryAsArray", () => {
 		});
 	});
 
-	describe("cutBitArray works", () => {
+	describe("cutBitArray", () => {
 
 		test("arr1", () => {
 
@@ -123,6 +122,52 @@ describe("BinaryAsArray", () => {
 			deepEqualIntArrays(
 				arr.cutBitArray(5, 8).bytes,
 				[0b01000110]
+			);
+		});
+	});
+
+	describe("assignInt", () => {
+
+		test("arr1 255 0 8", () => {
+
+			const arr = getInit()[0];
+
+			deepEqualIntArrays(
+				arr.assignInt(255, 0, 8).bytes,
+				[0b11111111, 0b00110101, 0b11001100, 0b01010101, 0b00100000]
+			);
+		});
+
+		test("arr1 101110111 13 12", () => {
+
+			const arr = getInit()[0];
+
+			deepEqualIntArrays(
+				arr.assignInt(0b000101110111, 13, 12).bytes,
+				[0b10101010, 0b00110000, 0b10111011, 0b11010101, 0b00100000]
+			);
+		});
+
+		test("arr1 101110111 13 4", () => {
+
+			const arr = getInit()[0];
+
+			deepEqualIntArrays(
+				arr.assignInt(0b000101110111, 13, 4).bytes,
+				[0b10101010, 0b00110011, 0b11001100, 0b01010101, 0b00100000]
+			);
+		});
+	});
+
+	describe("static join", () => {
+
+		test("all init", () => {
+
+			const arrs = getInit();
+
+			deepEqualIntArrays(
+				BinaryAsArray.join(...arrs).bytes,
+				[0b10101010, 0b00110101, 0b11001100, 0b01010101, 0b00111110, 0b00001011, 0b01011010, 0b11001000]
 			);
 		});
 	});

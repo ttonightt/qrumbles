@@ -62,7 +62,7 @@ export const UTF8 = {
 		}
 		if (blen <= 11) {
 
-			const codes = splitByBase(utf16, 6);
+			const codes = splitByBase(utf16, 0x40);
 
 			codes[0] += 0b11000000;
 			codes[1] += 0b10000000;
@@ -71,7 +71,7 @@ export const UTF8 = {
 		}
 		if (blen <= 16) {
 
-			const codes = splitByBase(utf16, 6, 6);
+			const codes = splitByBase(utf16, 0x40, 0x40);
 
 			codes[0] += 0b11100000;
 			codes[1] += 0b10000000;
@@ -85,7 +85,7 @@ export const UTF8 = {
 		
 		if ( codes.length === 1 ) {
 
-			if ( codes[0] & 0xc0 === 0 )
+			if ( (codes[0] & 0xc0) === 0 )
 
 				return String.fromCharCode( codes[0] );
 
@@ -93,24 +93,17 @@ export const UTF8 = {
 		}
 		if ( codes.length === 2 ) {
 
-			codes[0] &= 0xe0;
-			codes[1] &= 0xc0;
+			if ( (codes[0] & 0xe0) === 0xc0 && (codes[1] & 0xc0) === 0x80 )
 
-			if ( codes[0] === 0xc0 && codes[1] === 0x80 )
-
-				return String.fromCharCode( (codes[0] << 6) + codes[1] );
+				return String.fromCharCode( ( (codes[0] & 0x1f) << 6 ) + (codes[1] & 0x3f) );
 
 			throw `malformed utf8 code! got: ${b8(codes)}`;
 		}
 		if ( codes.length === 3 ) {
 
-			codes[0] &= 0xf0;
-			codes[1] &= 0xc0;
-			codes[1] &= 0xc0;
+			if ( (codes[0] & 0xf0) === 0xe0 && (codes[1] & 0xc0) === 0x80 && (codes[2] & 0xc0) === 0x80 )
 
-			if ( codes[0] === 0xe0 && codes[1] === 0x80 && codes[2] === 0x80 )
-
-				return String.fromCharCode( (codes[0] << 12) + (codes[1] << 6) + codes[2] );
+				return String.fromCharCode( ( (codes[0] & 0x0f) << 12 ) + ( (codes[1] & 0x3f) << 6 ) + (codes[2] & 0x3f) );
 
 			throw `malformed utf8 code! got: ${b8(codes)}`;
 		}

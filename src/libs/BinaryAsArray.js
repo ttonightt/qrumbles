@@ -8,7 +8,7 @@ export class BinaryAsArray {
 
 			if ( !(bitArray instanceof BinaryAsArray) ) throw new Error("...");
 
-			return sum + bin.bitLength;
+			return sum + bitArray.bitLength;
 		}, 0);
 
 		const full = new BinaryAsArray(fullLength);
@@ -120,12 +120,11 @@ export class BinaryAsArray {
 		this.type = "binary";
 	}
 
-	assignInt (target, int, t0, blen) {
+	assignInt (int, t0, blen) {
 
-		if ( !(target instanceof BinaryAsArray) ) throw `target argument must be an instance of BinaryAsArray`;
 		if ( !(Number.isSafeInteger(int)) ) throw `int argument isn't safe (must be < 2^53 - 1 and > -(2^53 - 1))! The preciosion may be lost! Split the number on pieces or int array`;
-		if ( !(0 <= t0 && t0 < target.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
-		if ( !(blen > 0 && blen < target.bitLength - t0) ) throw `blen argument is out of range (must be > 0 and < target.bitLength - t0)`;
+		if ( !(0 <= t0 && t0 < this.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < array bitLength)`;
+		if ( !(blen > 0 && blen < this.bitLength - t0) ) throw `blen argument is out of range (must be > 0 and < array bitLength - t0)`;
 
 		let t = t0;
 		let s = 0;
@@ -142,16 +141,18 @@ export class BinaryAsArray {
 			);
 
 			const trgShift = t8[2] - buffBitLength;
-
-			const buff = ( int >> (blen - s) ) & ones(buffBitLength);
+			
+			const buff = ( int >> (blen - s - buffBitLength) ) & ones(buffBitLength);
 
 			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
 
-			target.bytes[ t8[1] ] = ( target.bytes[ t8[1] ] & mask ) + ( buff << trgShift );
+			this.bytes[ t8[1] ] = ( this.bytes[ t8[1] ] & mask ) + ( buff << trgShift );
 
 			s += buffBitLength;
 			t += buffBitLength;
 		}
+
+		return this;
 	}
 
 	putBitArray (source, t0, blen, s0 = 0) {
