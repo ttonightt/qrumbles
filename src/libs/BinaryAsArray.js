@@ -40,7 +40,7 @@ export class BinaryAsArray {
 		let t = t0;
 		let s = s0;
 
-		const se = s0 + ( blen === undefined ? fit : Math.min(blen) );
+		const se = s0 + ( blen === undefined ? fit : Math.min(fit, blen) );
 
 		while (s < se) {
 
@@ -68,7 +68,7 @@ export class BinaryAsArray {
 		}
 	}
 
-	static fromInt (arr, padBits = 0) {
+	static fromIntArray (arr, padBits = 0) {
 
 		if ( isIntArray(arr) ) {
 
@@ -82,7 +82,13 @@ export class BinaryAsArray {
 
 			return arr_;
 		}
-		else if (arr instanceof Array) {
+
+		throw `Unsupported type of arr argument: ${arr}`;
+	}
+
+	static fromArray (arr, padBits = 0) {
+		
+		if (arr instanceof Array) {
 
 			padBits %= 8;
 
@@ -92,7 +98,7 @@ export class BinaryAsArray {
 
 				if ( typeof arr[i] !== "number" )
 					
-					throw `BinaryAsArray cannot be created from Array with children ${arr[i]}`;
+					throw `BinaryAsArray cannot be created from Array with such an item: ${arr[i]}`;
 
 				arr_[i] = arr[i];
 			}
@@ -100,7 +106,7 @@ export class BinaryAsArray {
 			return arr_;
 		}
 
-		throw `Unknows type of arr argument: ${arr}`;
+		throw `Unsupported type of arr argument: ${arr}`;
 	}
 
 	constructor (bitLength) {
@@ -114,14 +120,50 @@ export class BinaryAsArray {
 		this.type = "binary";
 	}
 
+	assignInt (target, int, t0, blen) {
+
+		if ( !(target instanceof BinaryAsArray) ) throw `target argument must be an instance of BinaryAsArray`;
+		if ( !(Number.isSafeInteger(int)) ) throw `int argument isn't safe (must be < 2^53 - 1 and > -(2^53 - 1))! The preciosion may be lost! Split the number on pieces or int array`;
+		if ( !(0 <= t0 && t0 < target.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
+		if ( !(blen > 0 && blen < target.bitLength - t0) ) throw `blen argument is out of range (must be > 0 and < target.bitLength - t0)`;
+
+		let t = t0;
+		let s = 0;
+
+		int &= ones(blen);
+
+		while (s < blen) {
+
+			const t8 = bitOffset8(t);
+
+			const buffBitLength = Math.min(
+				blen - s,
+				t8[2]
+			);
+
+			const trgShift = t8[2] - buffBitLength;
+
+			const buff = ( int >> (blen - s) ) & ones(buffBitLength);
+
+			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
+
+			target.bytes[ t8[1] ] = ( target.bytes[ t8[1] ] & mask ) + ( buff << trgShift );
+
+			s += buffBitLength;
+			t += buffBitLength;
+		}
+	}
+
 	putBitArray (source, t0, blen, s0 = 0) {
 
 		BinaryAsArray.transferBits(this, source, t0, blen, s0);
+
+		return this;
 	}
 
 	cutBitArray (s0, blen) {
 
-		const target = new BinaryAsArray(blen ?? this.bitLength);
+		const target = new BinaryAsArray(blen ?? this.bitLength - s0);
 
 		BinaryAsArray.transferBits(target, this, 0, blen, s0);
 
