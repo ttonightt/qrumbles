@@ -20,6 +20,20 @@ export const isInt16Array = arr => (
 	arr instanceof Uint16Array
 );
 
+export const isInt32Array = arr => (
+	arr instanceof Int32Array ||
+	arr instanceof Uint32Array
+);
+
+export const getIntArrayBase = arr => {
+
+	if ( isInt8Array(arr) ) return 8;
+	if ( isInt16Array(arr) ) return 16;
+	if ( isInt32Array(arr) ) return 32;
+
+	throw "given array doesn't belong to typed int arrays!";
+};
+
 export const bitLength = n => {
 
 	if (n === 0) return 0;
