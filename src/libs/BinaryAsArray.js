@@ -1,4 +1,4 @@
-import { putBits, sliceBits, b8, bitOffset8, b, clearLastBits, ones, bitLength, isIntArray, isInt8Array } from "./beans";
+import { putBits, sliceBits, b8, bitOffset, b, clearLastBits, ones, bitLength, isIntArray, isInt8Array } from "./beans";
 
 export class BinaryAsArray {
 
@@ -46,8 +46,8 @@ export class BinaryAsArray {
 
 		while (s < se) {
 
-			const s8 = bitOffset8(s);
-			const t8 = bitOffset8(t);
+			const s8 = bitOffset(s, 8);
+			const t8 = bitOffset(t, 8);
 
 			const buffBitLength = Math.min(
 				s8[2],
@@ -126,7 +126,7 @@ export class BinaryAsArray {
 
 		while (s < blen) {
 
-			const t8 = bitOffset8(t);
+			const t8 = bitOffset(t, 8);
 
 			const buffBitLength = Math.min(
 				blen - s,
@@ -163,7 +163,7 @@ export class BinaryAsArray {
 
 		while (s < se) {
 
-			const s8 = bitOffset8(s);
+			const s8 = bitOffset(s, 8);
 
 			const buffBitLength = Math.min(
 				s8[2],

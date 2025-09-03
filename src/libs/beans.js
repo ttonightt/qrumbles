@@ -166,12 +166,12 @@ export const binole = {
 	}
 };
 
-export const bitOffset8 = (ff) => {
+export const bitOffset = (ff, base) => {
 
 	return [
-		ff % 8,
-		Math.floor(ff / 8),
-		8 - (ff % 8)
+		ff % base,
+		Math.floor(ff / base),
+		base - (ff % base)
 	];
 }
 
