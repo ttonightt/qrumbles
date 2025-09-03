@@ -113,7 +113,7 @@ export class BinaryAsArray {
 		this.type = "binary";
 	}
 
-	assignInt (int, t0, blen) {
+	setInt (int, t0, blen) {
 
 		if ( !(Number.isSafeInteger(int)) ) throw `int argument isn't safe (must be < 2^53 - 1 and > -(2^53 - 1))! The preciosion may be lost! Split the number on pieces or int array`;
 		if ( !(0 <= t0 && t0 < this.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < array bitLength)`;
@@ -181,14 +181,14 @@ export class BinaryAsArray {
 		return int;
 	}
 
-	putBitArray (source, t0, blen, s0 = 0) {
+	setBitArray (source, t0, blen, s0 = 0) {
 
 		BinaryAsArray.transferBits(this, source, t0, blen, s0);
 
 		return this;
 	}
 
-	cutBitArray (s0, blen) {
+	getBitArray (s0, blen) {
 
 		const target = new BinaryAsArray(blen ?? this.bitLength - s0);
 

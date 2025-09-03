@@ -40,14 +40,14 @@ describe("beans", () => {
 
 describe("BinaryAsArray", () => {
 	
-	describe("putBitArray", () => {
+	describe("setBitArray", () => {
 
 		test("arr1 0", () => {
 
 			const arrs = getInit();
 
 			deepEqualIntArrays(
-				arrs[0].putBitArray(arrs[1], 0).bytes,
+				arrs[0].setBitArray(arrs[1], 0).bytes,
 				[0b11110000, 0b01011011, 0b11001100, 0b01010101, 0b00100000]
 			);
 		});
@@ -57,7 +57,7 @@ describe("BinaryAsArray", () => {
 			const arrs = getInit();
 
 			deepEqualIntArrays(
-				arrs[0].putBitArray(arrs[1], 2).bytes,
+				arrs[0].setBitArray(arrs[1], 2).bytes,
 				[0b10111100, 0b00010110, 0b11001100, 0b01010101, 0b00100000]
 			);
 		});
@@ -67,7 +67,7 @@ describe("BinaryAsArray", () => {
 			const arrs = getInit();
 
 			deepEqualIntArrays(
-				arrs[0].putBitArray(arrs[1], 30).bytes,
+				arrs[0].setBitArray(arrs[1], 30).bytes,
 				[0b10101010, 0b00110101, 0b11001100, 0b01010111, 0b11000000]
 			);
 		});
@@ -77,7 +77,7 @@ describe("BinaryAsArray", () => {
 			const arrs = getInit();
 
 			deepEqualIntArrays(
-				arrs[0].putBitArray(arrs[1], 20, 13).bytes,
+				arrs[0].setBitArray(arrs[1], 20, 13).bytes,
 				[0b10101010, 0b00110101, 0b11001111, 0b00000101, 0b10100000]
 			);
 		});
@@ -87,7 +87,7 @@ describe("BinaryAsArray", () => {
 			const arrs = getInit();
 
 			deepEqualIntArrays(
-				arrs[0].putBitArray(arrs[1], 20, 13, 9).bytes,
+				arrs[0].setBitArray(arrs[1], 20, 13, 9).bytes,
 				[0b10101010, 0b00110101, 0b11001011, 0b01010101, 0b00100000]
 			);
 		});
@@ -97,20 +97,20 @@ describe("BinaryAsArray", () => {
 			const arrs = getInit();
 
 			deepEqualIntArrays(
-				arrs[1].putBitArray(arrs[0], 5, 8, 9).bytes,
+				arrs[1].setBitArray(arrs[0], 5, 8, 9).bytes,
 				[0b11110011, 0b01011010]
 			);
 		});
 	});
 
-	describe("cutBitArray", () => {
+	describe("getBitArray", () => {
 
 		test("arr1", () => {
 
 			const arr = getInit()[0];
 
 			deepEqualIntArrays(
-				arr.cutBitArray(13).bytes,
+				arr.getBitArray(13).bytes,
 				[0b10111001, 0b10001010, 0b10100100]
 			);
 		});
@@ -120,20 +120,20 @@ describe("BinaryAsArray", () => {
 			const arr = getInit()[0];
 
 			deepEqualIntArrays(
-				arr.cutBitArray(5, 8).bytes,
+				arr.getBitArray(5, 8).bytes,
 				[0b01000110]
 			);
 		});
 	});
 
-	describe("assignInt", () => {
+	describe("setInt", () => {
 
 		test("arr1 255 0 8", () => {
 
 			const arr = getInit()[0];
 
 			deepEqualIntArrays(
-				arr.assignInt(255, 0, 8).bytes,
+				arr.setInt(255, 0, 8).bytes,
 				[0b11111111, 0b00110101, 0b11001100, 0b01010101, 0b00100000]
 			);
 		});
@@ -143,7 +143,7 @@ describe("BinaryAsArray", () => {
 			const arr = getInit()[0];
 
 			deepEqualIntArrays(
-				arr.assignInt(0b000101110111, 13, 12).bytes,
+				arr.setInt(0b000101110111, 13, 12).bytes,
 				[0b10101010, 0b00110000, 0b10111011, 0b11010101, 0b00100000]
 			);
 		});
@@ -153,7 +153,7 @@ describe("BinaryAsArray", () => {
 			const arr = getInit()[0];
 
 			deepEqualIntArrays(
-				arr.assignInt(0b000101110111, 13, 4).bytes,
+				arr.setInt(0b000101110111, 13, 4).bytes,
 				[0b10101010, 0b00110011, 0b11001100, 0b01010101, 0b00100000]
 			);
 		});

@@ -36,8 +36,8 @@ export const Alphanum = {
 		bins.type = "alphanumerical-prefix";
 		bins.counterBitLength = counterBitLength;
 
-		bins.putInt(0, 4, 0b0010);
-		bins.putInt(4, counterBitLength, len);
+		bins.setInt(0, 4, 0b0010);
+		bins.setInt(4, counterBitLength, len);
 
 		return bins;
 	}
@@ -80,29 +80,29 @@ export class AlphanumArray extends BinaryAsArray {
 
 		if (i % 2) {
 
-			const target = Math.floor(this.cutInt(j * 11, 11) / 45) * 45;
+			const target = Math.floor(this.getInt(j * 11, 11) / 45) * 45;
 
-			this.putInt(j * 11, 11, target + Alphanum.charToCode(str[c++]));
+			this.setInt(j * 11, 11, target + Alphanum.charToCode(str[c++]));
 
 			j++;
 		}
 
 		for (j; j < mj; j++) {
 
-			this.putInt(j * 11, 11, Alphanum.charToCode(str[c++]) * 45 + Alphanum.charToCode(str[c++]));
+			this.setInt(j * 11, 11, Alphanum.charToCode(str[c++]) * 45 + Alphanum.charToCode(str[c++]));
 		}
 
 		if ((i + len) % 2) {
 
 			if (i + len === this.length) {
 
-				this.putInt(mj * 11, 6, Alphanum.charToCode(str[c]));
+				this.setInt(mj * 11, 6, Alphanum.charToCode(str[c]));
 
 			} else {
 
-				const target = this.cutInt(mj * 11, 11) % 45;
+				const target = this.getInt(mj * 11, 11) % 45;
 
-				this.putInt(mj * 11, 11, Alphanum.charToCode(str[c]) * 45 + target);
+				this.setInt(mj * 11, 11, Alphanum.charToCode(str[c]) * 45 + target);
 			}
 		}
 
@@ -122,7 +122,7 @@ export class AlphanumArray extends BinaryAsArray {
 
 		if (i % 2) {
 
-			const int = this.cutInt(j * 11, 11) % 45;
+			const int = this.getInt(j * 11, 11) % 45;
 
 			str += Alphanum.codeToChar(int);
 
@@ -131,7 +131,7 @@ export class AlphanumArray extends BinaryAsArray {
 
 		for (j; j < mj; j++) {
 
-			const int = this.cutInt(j * 11, 11);
+			const int = this.getInt(j * 11, 11);
 			str += Alphanum.codeToChar(Math.floor(int / 45)) + Alphanum.codeToChar(int % 45);
 		}
 
@@ -140,9 +140,9 @@ export class AlphanumArray extends BinaryAsArray {
 			str += Alphanum.codeToChar(
 				i + len === this.length
 				?
-				this.cutInt(mj * 11, 6)
+				this.getInt(mj * 11, 6)
 				:
-				Math.floor(this.cutInt(mj * 11, 11) / 45)
+				Math.floor(this.getInt(mj * 11, 11) / 45)
 			);
 		}
 
@@ -157,7 +157,7 @@ export class AlphanumArray extends BinaryAsArray {
 
 		for (let i = 0; i < len2; i++) {
 
-			const code = this.cutInt(i * 11, 11);
+			const code = this.getInt(i * 11, 11);
 
 			if (code >= 45 * 45) {
 
@@ -171,7 +171,7 @@ export class AlphanumArray extends BinaryAsArray {
 
 		if (this.length % 2) {
 
-			const code = this.cutInt(this.bitLength - 6, 6);
+			const code = this.getInt(this.bitLength - 6, 6);
 
 			if (code >= 45) {
 
@@ -194,11 +194,11 @@ export class AlphanumArray extends BinaryAsArray {
 
 		for (let i = 0; i < len2; i++)
 
-			ints[i] = this.cutInt(i * 11, 11);
+			ints[i] = this.getInt(i * 11, 11);
 
 		if (this.length % 2)
 
-			ints[len2] = this.cutInt(len2 * 11, 6);
+			ints[len2] = this.getInt(len2 * 11, 6);
 
 		return ints;
 	}

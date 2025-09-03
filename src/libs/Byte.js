@@ -115,18 +115,18 @@ export const UTF8 = {
 //console.log(destructByBase(0xffff, 0x40, 0x40).map(n => b(n)));
 
 //const arrays = [
-//	new BinaryAsArray(12).putInt(0, 12, 0xfff),
-//	new BinaryAsArray(4).putInt(0, 4, 0xf),
-//	new BinaryAsArray(25).putInt(0, 25, 0x1fffffa),
-//	new BinaryAsArray(7).putInt(0, 7, 0x5a),
-//	new BinaryAsArray(8).putInt(0, 8, 0xaa)
+//	new BinaryAsArray(12).setInt(0, 12, 0xfff),
+//	new BinaryAsArray(4).setInt(0, 4, 0xf),
+//	new BinaryAsArray(25).setInt(0, 25, 0x1fffffa),
+//	new BinaryAsArray(7).setInt(0, 7, 0x5a),
+//	new BinaryAsArray(8).setInt(0, 8, 0xaa)
 //];
 
 //console.log([0xfff, 0xf, 0x1fffffa, 0x5a, 0xaa].map(n => b(n)));
 //console.log([0xfff, 0xf, 0x1fffffa, 0x5a, 0xaa].map(n => bitLength(n)));
 //console.log(arrays.map( arr => arr.bitLength ));
 ////console.log(arrays.map( arr => b8(arr.bytes) ));
-//console.log(arrays.map( arr => b(arr.cutInt(0, arr.bitLength)) ));
+//console.log(arrays.map( arr => b(arr.getInt(0, arr.bitLength)) ));
 //console.log(b8(BinaryAsArray.join(...arrays).bytes));
 
 //console.log(b(sliceBits(0xffff, 4, 4)));
@@ -157,8 +157,8 @@ export const Byte = {
 		bins.type = "byte-prefix";
 		bins.counterBitLength = counterBitLength;
 
-		bins.putInt(0, 4, 0b0100);
-		bins.putInt(4, counterBitLength, len);
+		bins.setInt(0, 4, 0b0100);
+		bins.setInt(4, counterBitLength, len);
 
 		return bins;
 	},
@@ -169,20 +169,20 @@ export const Byte = {
 
 		bins.type = "eci-prefix";
 
-		bins.putInt(0, 4, 0b0111);
+		bins.setInt(0, 4, 0b0111);
 
 		switch (encoding) {
 			case "latin1":
-				bins.putInt(4, 8, 3);
+				bins.setInt(4, 8, 3);
 				break;
 			case "latin2":
-				bins.putInt(4, 8, 4);
+				bins.setInt(4, 8, 4);
 				break;
 			case "windows1250":
-				bins.putInt(4, 8, 21);
+				bins.setInt(4, 8, 21);
 				break;
 			case "windows1251":
-				bins.putInt(4, 8, 22);
+				bins.setInt(4, 8, 22);
 		}
 
 		return bins;

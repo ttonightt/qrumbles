@@ -16,8 +16,8 @@ export const Numerical = {
 		bins.type = "numerical-prefix";
 		bins.counterBitLength = counterBitLength;
 
-		bins.putInt(0, 4, 0b0001);
-		bins.putInt(4, counterBitLength, len);
+		bins.setInt(0, 4, 0b0001);
+		bins.setInt(4, counterBitLength, len);
 
 		return bins;
 	}
@@ -96,12 +96,12 @@ export class NumericalArray extends BinaryAsArray {
 
 			const target = destructByBase(
 
-				this.cutInt(j * 10, 10),
+				this.getInt(j * 10, 10),
 				10 ** ri
 
 			)[0];
 
-			this.putInt(j * 10, 10, target + parseInt(str.slice(0, ri), 10));
+			this.setInt(j * 10, 10, target + parseInt(str.slice(0, ri), 10));
 
 			c += ri;
 			j++;
@@ -109,39 +109,39 @@ export class NumericalArray extends BinaryAsArray {
 
 		for (j; j < mj; j++) {
 
-			this.putInt(j * 10, 10, parseInt(str[c++] + str[c++] + str[c++], 10));
+			this.setInt(j * 10, 10, parseInt(str[c++] + str[c++] + str[c++], 10));
 		}
 
 		//
 		switch ((mi % 3) * 10 + (mi === this.length ? this.lastBlockCharbase : this.charbase)) {
 			case 13:
-				this.putInt(mj * 10, 10,
+				this.setInt(mj * 10, 10,
 					parseInt(str.slice(-1), 10) * 100
 					+
-					destructByBase(this.cutInt(mj * 10, 10), 100)[1]
+					destructByBase(this.getInt(mj * 10, 10), 100)[1]
 				);
 				break;
 			case 23:
-				this.putInt(mj * 10, 10,
+				this.setInt(mj * 10, 10,
 					parseInt(str.slice(-2), 10) * 10
 					+
-					destructByBase(this.cutInt(mj * 10, 10), 10)[1]
+					destructByBase(this.getInt(mj * 10, 10), 10)[1]
 				);
 				break;
 			case 22:
-				this.putInt(mj * 10, 7,
+				this.setInt(mj * 10, 7,
 					parseInt(str.slice(-2), 10)
 				);
 				break;
 			case 12:
-				this.putInt(mj * 10, 7,
+				this.setInt(mj * 10, 7,
 					parseInt(str.slice(-1), 10) * 10
 					+
-					destructByBase(this.cutInt(mj * 10, 7), 10)[1]
+					destructByBase(this.getInt(mj * 10, 7), 10)[1]
 				);
 				break;
 			case 11:
-				this.putInt(mj * 10, 4,
+				this.setInt(mj * 10, 4,
 					parseInt(str.slice(-1), 10)
 				);
 		}
@@ -162,7 +162,7 @@ export class NumericalArray extends BinaryAsArray {
 
 		if (i % 2) {
 
-			const int = this.cutInt(j * 11, 11) % 45;
+			const int = this.getInt(j * 11, 11) % 45;
 
 			str += Alphanum.codeToChar(int);
 
@@ -171,7 +171,7 @@ export class NumericalArray extends BinaryAsArray {
 
 		for (j; j < mj; j++) {
 
-			const int = this.cutInt(j * 11, 11);
+			const int = this.getInt(j * 11, 11);
 			str += Alphanum.codeToChar(Math.floor(int / 45)) + Alphanum.codeToChar(int % 45);
 		}
 
@@ -180,9 +180,9 @@ export class NumericalArray extends BinaryAsArray {
 			str += Alphanum.codeToChar(
 				i + len === this.length
 				?
-				this.cutInt(mj * 11, 6)
+				this.getInt(mj * 11, 6)
 				:
-				Math.floor(this.cutInt(mj * 11, 11) / 45)
+				Math.floor(this.getInt(mj * 11, 11) / 45)
 			);
 		}
 
@@ -197,7 +197,7 @@ export class NumericalArray extends BinaryAsArray {
 
 		for (let i = 0; i < len3; i++) {
 
-			const code = this.cutInt(i * 10, 10);
+			const code = this.getInt(i * 10, 10);
 
 			if (code > 999) {
 
@@ -211,7 +211,7 @@ export class NumericalArray extends BinaryAsArray {
 
 		if (this.length % 3 === 1) {
 
-			const code = this.cutInt(this.bitLength - 4, 4);
+			const code = this.getInt(this.bitLength - 4, 4);
 
 			if (code > 9) {
 
@@ -225,7 +225,7 @@ export class NumericalArray extends BinaryAsArray {
 
 		if (this.length % 3 === 2) {
 
-			const code = this.cutInt(this.bitLength - 7, 7);
+			const code = this.getInt(this.bitLength - 7, 7);
 
 			if (code > 99) {
 
@@ -246,7 +246,7 @@ export class NumericalArray extends BinaryAsArray {
 
 		for (let i = 0; i < this.length; i++)
 
-			ints[i] = this.cutInt(i * 10, 10);
+			ints[i] = this.getInt(i * 10, 10);
 
 		return ints;
 	}
