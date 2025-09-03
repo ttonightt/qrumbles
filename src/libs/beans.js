@@ -214,3 +214,21 @@ export const splitByBase = (num, ...bases) => {
 
 	return pieces.reverse();
 };
+
+
+export const choose = ( x, cases, values ) => {
+
+	if ( !(cases.length && values.length && cases.length === values.length) )
+
+		throw `cases and values arguments are not arrays, have zero length or their lengths don't match!`;
+
+	for (let i = 0; i < cases.length; i++) {
+
+		if ( cases[i] === x ) {
+
+			return values[i];
+		}
+	}
+
+	return undefined;
+};
