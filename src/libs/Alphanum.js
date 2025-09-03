@@ -1,4 +1,4 @@
-import { b, b8, binole } from "./beans";
+import { b, b8, binole, choose } from "./beans";
 
 import { BinaryAsArray } from "./BinaryAsArray";
 
@@ -26,20 +26,20 @@ export const Alphanum = {
 
 	prefix (version, len) {
 
-		if (version < 1 || 40 < version) throw new Error("...");
-		if (len < 1) throw new Error("...");
+		if (version < 1 || 40 < version) throw `version is out of range (must be > 1 and < 40)`;
+		if (len < 1) throw `len argument is out of range (must be > 0)`;
 
-		const counterBitLength = 9 + Math.floor((version + 7) / 17) * 2;
+		const counterBitLength = choose( true, [ version < 10, version < 27, true ], [ 9, 11, 13 ] );
 
-		const bins = new BinaryAsArray(4 + counterBitLength);
+		const bin = new BinaryAsArray(4 + counterBitLength);
 
-		bins.type = "alphanumerical-prefix";
-		bins.counterBitLength = counterBitLength;
+		bin.type = "alphanumerical-prefix";
+		bin.counterBitLength = counterBitLength;
 
-		bins.setInt(0, 4, 0b0010);
-		bins.setInt(4, counterBitLength, len);
+		bin.setInt(0b0010, 0, 4);
+		bin.setInt(len, 4, counterBitLength);
 
-		return bins;
+		return bin;
 	}
 };
 
@@ -67,7 +67,7 @@ export class AlphanumArray extends BinaryAsArray {
 
 	setStr (i, str) {
 
-		if (!(0 <= i && i < this.length)) throw new Error("...");
+		if (!(0 <= i && i < this.length)) throw `i argument (index offset) is out of range (must be >= 0 and < array length)`;
 
 		const len = i + str.length > this.length ? this.length - i : str.length;
 
@@ -82,27 +82,27 @@ export class AlphanumArray extends BinaryAsArray {
 
 			const target = Math.floor(this.getInt(j * 11, 11) / 45) * 45;
 
-			this.setInt(j * 11, 11, target + Alphanum.charToCode(str[c++]));
+			this.setInt(target + Alphanum.charToCode(str[c++]), j * 11, 11);
 
 			j++;
 		}
 
 		for (j; j < mj; j++) {
 
-			this.setInt(j * 11, 11, Alphanum.charToCode(str[c++]) * 45 + Alphanum.charToCode(str[c++]));
+			this.setInt(Alphanum.charToCode(str[c++]) * 45 + Alphanum.charToCode(str[c++]), j * 11, 11);
 		}
 
 		if ((i + len) % 2) {
 
 			if (i + len === this.length) {
 
-				this.setInt(mj * 11, 6, Alphanum.charToCode(str[c]));
+				this.setInt(Alphanum.charToCode(str[c]), mj * 11, 6);
 
 			} else {
 
 				const target = this.getInt(mj * 11, 11) % 45;
 
-				this.setInt(mj * 11, 11, Alphanum.charToCode(str[c]) * 45 + target);
+				this.setInt(Alphanum.charToCode(str[c]) * 45 + target, mj * 11, 11);
 			}
 		}
 
@@ -203,13 +203,3 @@ export class AlphanumArray extends BinaryAsArray {
 		return ints;
 	}
 }
-
-// const arr = new AlphanumArray(9);
-
-// arr.setStr(1, "ANASTASIA");
-
-// console.log(b(arr.toUintArray(), 11));
-
-// const message = arr.getStr();
-
-// console.log(message);
