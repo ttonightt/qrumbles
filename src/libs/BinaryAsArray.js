@@ -117,7 +117,7 @@ export class BinaryAsArray {
 
 		if ( !(Number.isSafeInteger(int)) ) throw `int argument isn't safe (must be < 2^53 - 1 and > -(2^53 - 1))! The preciosion may be lost! Split the number on pieces or int array`;
 		if ( !(0 <= t0 && t0 < this.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < array bitLength)`;
-		if ( !(blen > 0 && blen < this.bitLength - t0) ) throw `blen argument is out of range (must be > 0 and < array bitLength - t0)`;
+		if ( !(blen > 0 && blen <= this.bitLength - t0) ) throw `blen argument is out of range (must be > 0 and < array bitLength - t0)`;
 
 		let t = t0;
 		let s = 0;
@@ -153,7 +153,7 @@ export class BinaryAsArray {
 		if ( blen <= 0 ) throw `passed blen argument (bit range) is out of range (must be <= 52 and > 0)!`;
 		if ( blen > 52 ) throw `passed blen argument (bit range) is too wide to capture safe integer (must be <= 52 and > 0)! The preciosion of output may be lost! Split the number on pieces or int array`;
 		if ( !(0 <= s0 && s0 < this.bitLength) ) throw `s0 argument is out of range (must be >= 0 and < array bitLength)`;
-		if ( !(blen > 0 && blen < this.bitLength - s0) ) throw `blen argument is out of range (must be > 0 and < array bitLength - t0)`;
+		if ( !(blen > 0 && blen <= this.bitLength - s0) ) throw `blen argument is out of range (must be > 0 and < array bitLength - t0)`;
 
 		let s = s0;
 

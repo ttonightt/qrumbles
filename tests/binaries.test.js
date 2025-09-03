@@ -157,6 +157,26 @@ describe("BinaryAsArray", () => {
 				[0b10101010, 0b00110011, 0b11001100, 0b01010101, 0b00100000]
 			);
 		});
+
+		test("arr2 10011001 11 4", () => {
+
+			const arr = getInit()[1];
+
+			deepEqualIntArrays(
+				arr.setInt(0b10011001, 11, 4).bytes,
+				[0b11110000, 0b01010010]
+			);
+		});
+
+		test("arr2 10011001 0 15", () => {
+
+			const arr = getInit()[1];
+
+			deepEqualIntArrays(
+				arr.setInt(0b10011001, 0, 15).bytes,
+				[0b00000001, 0b00110010]
+			);
+		});
 	});
 
 	describe("getInt", () => {
@@ -173,6 +193,24 @@ describe("BinaryAsArray", () => {
 			const arr = getInit()[0];
 
 			expect( arr.getInt(13, 20) ).toBe(0b10111001100010101010);
+		});
+
+		test("arr2 9 6", () => {
+
+			const arr = getInit()[1];
+
+			console.log(b(arr.getInt(9, 6)));
+
+			expect( arr.getInt(9, 6) ).toBe(0b101101);
+		});
+
+		test("arr2 0 15", () => {
+
+			const arr = getInit()[1];
+
+			console.log(b(arr.getInt(0, 15)));
+
+			expect( arr.getInt(0, 15) ).toBe(0b111100000101101);
 		});
 	});
 
