@@ -100,6 +100,78 @@ describe("Alphanum", () => {
 		});
 	});
 
+	describe("slice", () => {
+
+		test("arr2 0 7", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.slice(0, 7);
+
+			expect( arr_.getStr(0, 7) ).toBe("WHELLOD");
+		});
+
+		test("arr2 3 7", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.slice(3, 7);
+
+			expect( arr_.getStr(0, 4) ).toBe("LLOD");
+		});
+
+		test("arr2 1 3", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.slice(1, 3);
+
+			expect( arr_.getStr(0, 2) ).toBe("HE");
+		});
+	});
+
+	describe("padStart", () => {
+
+		test("arr2 4", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.padStart(4);
+
+			expect( arr_.getStr(0, 11) ).toBe("0000WHELLOD");
+		});
+
+		test("arr2 3", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.padStart(3);
+
+			expect( arr_.getStr(0, 10) ).toBe("000WHELLOD");
+		});
+	});
+
+	describe("padEnd", () => {
+
+		test("arr2 4", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.padEnd(4);
+
+			expect( arr_.getStr(0, 11) ).toBe("WHELLOD0000");
+		});
+
+		test("arr2 3", () => {
+
+			const arr = getInit()[1];
+
+			const arr_ = arr.padEnd(3);
+
+			expect( arr_.getStr(0, 10) ).toBe("WHELLOD000");
+		});
+	});
+
 	describe("validate", () => {
 
 		test("arr1 0 2", () => {

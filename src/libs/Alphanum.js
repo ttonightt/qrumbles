@@ -1,4 +1,4 @@
-import { b, b8, binole, choose } from "./beans";
+import { choose, splitByBase } from "./beans";
 
 import { BinaryAsArray } from "./BinaryAsArray";
 
@@ -147,6 +147,39 @@ export class AlphanumArray extends BinaryAsArray {
 		}
 
 		return str;
+	}
+
+	slice (ff, ffe) {
+
+		const target = new AlphanumArray(ffe - ff);
+
+		const str = this.getStr(ff, ffe - ff);
+
+		target.setStr(0, str);
+
+		return target;
+	}
+
+	padStart (pad) {
+
+		const target = new AlphanumArray( this.length + pad );
+
+		const str = this.getStr(0, this.length);
+
+		target.setStr(pad, str);
+
+		return target;
+	}
+
+	padEnd (pad) {
+
+		const target = new AlphanumArray( this.length + pad );
+
+		const str = this.getStr(0, this.length);
+
+		target.setStr(0, str);
+
+		return target;
 	}
 
 	validate () {
