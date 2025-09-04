@@ -216,7 +216,7 @@ export const splitByBase = (num, ...bases) => {
 };
 
 
-export const choose = ( x, cases, values ) => {
+export const choose = ( x, cases, values, defaultValue ) => {
 
 	if ( !(cases.length && values.length && cases.length === values.length) )
 
@@ -230,5 +230,7 @@ export const choose = ( x, cases, values ) => {
 		}
 	}
 
-	return undefined;
+	return defaultValue;
 };
+
+export const throwError = error => { throw error };
