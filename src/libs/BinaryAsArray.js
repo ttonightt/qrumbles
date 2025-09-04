@@ -1,48 +1,75 @@
-import { putBits, sliceBits, b8, bitOffset, b, clearLastBits, ones, bitLength, isIntArray, isInt8Array } from "./beans";
+import { putBits, sliceBits, b8, bitOffset, b, clearLastBits, ones, bitLength, isIntArray, isInt8Array, choose, throwError } from "./beans";
 
 export class BinaryAsArray {
 
-	static join (...bitArrays) {
+	static join (...sources) {
 
-		const fullLength = bitArrays.reduce(( sum, bitArray ) => {
+		const sourceBitLengths = [];
 
-			if ( !(bitArray instanceof BinaryAsArray) ) throw new Error("...");
+		sources.forEach(source => {
 
-			return sum + bitArray.bitLength;
+			sourceBitLengths.push(
+				choose( true,
+					[ source instanceof BinaryAsArray, isInt8Array(source) ],
+					[ source.bitLength, 8 * source.length ]
+				) ??
+				throwError(``)
+			);
 		}, 0);
 
-		const full = new BinaryAsArray(fullLength);
+		const target = new BinaryAsArray( sourceBitLengths.reduce( (sum, len) => sum + len, 0 ) );
 
 		let t = 0;
 
-		for (const bitArray of bitArrays) {
+		for (let i = 0; i < sources.length; i++) {
 
-			this.transferBits(full, bitArray, t);
+			this.transferBits( target, sources[i], t );
 
-			t += bitArray.bitLength;
+			t += sourceBitLengths[i];
 		}
 
-		return full;
+		return target;
 	}
 
-	static transferBits (target, source, t0, blen, s0 = 0) {
+	static transferBits (target, source, t0, bitLength, s0 = 0) {
 
-		if ( !(target instanceof BinaryAsArray) ) throw `target argument must be an instance of BinaryAsArray`;
-		if ( !(source instanceof BinaryAsArray) ) throw `source argument must be an instance of BinaryAsArray`;
-		if ( !(0 <= t0 && t0 < target.bitLength) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
-		if ( !(blen === undefined || blen > 0) ) throw `blen argument is out of range (must be > 0 if provided)`;
+		const [ targetBytes, targetBitLength ] = 
+			choose( true,
+				[ target instanceof BinaryAsArray, isInt8Array(target) ],
+				[
+					[ target.bytes,  target.bitLength ],
+					[       target, 8 * target.length ]
+				]
+			) ?? throwError(`_target argument must be an instance of BinaryAsArray or typed Int8Array`);
 
-		const blen_ = Math.min(
-			target.bitLength - t0,
-			source.bitLength - s0
-		);
 
-		const blen__ = blen === undefined ? blen_ : Math.min(blen_, blen);
+		if ( !(0 <= t0 && t0 < targetBitLength) )
+
+			throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
+
+
+		const [ sourceBytes, sourceBitLength ] = 
+			choose( true,
+				[ source instanceof BinaryAsArray, isInt8Array(source) ],
+				[
+					[ source.bytes,  source.bitLength ],
+					[       source, 8 * source.length ]
+				]
+			) ?? throwError(`_target argument must be an instance of BinaryAsArray or typed Int8Array`);
+
+		bitLength = 
+			choose( true,
+				[ bitLength === undefined, bitLength > 0 ],
+				[
+					Math.min( targetBitLength - t0, sourceBitLength - s0 ),
+					Math.min( targetBitLength - t0, sourceBitLength - s0, bitLength )
+				]
+			) ?? throwError(`bitLength argument is out of range (must be > 0 if provided)`);
 		
 		let t = t0;
 		let s = s0;
 
-		const se = s0 + blen__;
+		const se = s0 + bitLength;
 
 		while (s < se) {
 
@@ -58,48 +85,38 @@ export class BinaryAsArray {
 			const srcShift = s8[2] - buffBitLength;
 			const trgShift = t8[2] - buffBitLength;
 
-			const buff = ( source.bytes[ s8[1] ] >> srcShift ) & ones(buffBitLength);
+			const buff = ( sourceBytes[ s8[1] ] >> srcShift ) & ones(buffBitLength);
 
 			const mask = ( ones(8 - buffBitLength - trgShift) << (buffBitLength + trgShift) ) + ones(trgShift);
 
-			target.bytes[ t8[1] ] = ( target.bytes[ t8[1] ] & mask ) + ( buff << trgShift );
+			targetBytes[ t8[1] ] = ( targetBytes[ t8[1] ] & mask ) + ( buff << trgShift );
 
 			s += buffBitLength;
 			t += buffBitLength;
 		}
 	}
 
-	static from (_arr, bitLength) {
+	static from (source, bitLength) {
 
-		if ( !(bitLength === undefined || bitLength > 0) ) throw `bitLength argument is out of range (must be > 0 if provided)`;
+		const sourceBitLength = 
+			choose( true,
+				[ source instanceof BinaryAsArray, isInt8Array(source) ],
+				[ source.bitLength, 8 * source.length ]
+			) ??
+			throwError(`_target argument must be an instance of BinaryAsArray or typed Int8Array`);
+		
+		bitLength = 
+			choose( true,
+				[ bitLength === undefined, bitLength > 0 ],
+				[ sourceBitLength, bitLength ]
+			) ??
+			throwError(`bitLength argument is out of range (must be > 0 if provided)`);
 
-		let arr, blen;
+		const target = new BinaryAsArray(bitLength);
 
-		if ( isInt8Array(_arr) ) {
+		this.transferBits( target, source, 0, bitLength );
 
-			arr = _arr;
-			blen = _arr.length * 8;
-		}
-		else if ( _arr instanceof BinaryAsArray ) {
-
-			arr = _arr.bytes;
-			blen = _arr.bitLength;
-		}
-		else throw `Unsupported type of arr argument, must either from another BinaryAsArray or typed IntArray! Got: ${arr}`;
-
-
-		const blen_ = bitLength || blen;
-		const arr_ = new BinaryAsArray(blen_);
-
-		const minlen = Math.min(arr_.bytes.length, arr.length);
-
-		for (let i = 0; i < minlen; i++)
-
-			arr_.bytes[i] = arr[i];
-
-		arr_.bytes[ arr_.bytes.length - 1 ] = clearLastBits( arr_.bytes[ minlen - 1 ], (arr_.bytes.length * 8) - blen_ );
-
-		return arr_;
+		return target;
 	}
 
 	constructor (bitLength) {
