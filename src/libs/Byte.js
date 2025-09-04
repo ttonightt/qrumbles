@@ -1,4 +1,4 @@
-import { b, b8, binole, bitLength, destructByBase, sliceBits, splitByBase } from "./beans";
+import { b, b8, binole, bitLength, choose, chooseSlope, destructByBase, sliceBits, splitByBase, throwError } from "./beans";
 import { BinaryAsArray } from "./BinaryAsArray";
 
 export const Windows1250 = {
@@ -31,6 +31,11 @@ export const Windows1251 = {
 	}
 };
 
+const Latin1 = {
+	charToCode (c) { return c.charCodeAt(0) },
+	codeToChar (code) { return String.fromCharCode(code) }
+};
+
 export const Latin2 = {
 
 	__ref: "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\x80\x81\x82\x83\x84\x85\x86\x87\x88\x89\x8a\x8b\x8c\x8d\x8e\x8f\x90\x91\x92\x93\x94\x95\x96\x97\x98\x99\x9a\x9b\x9c\x9d\x9e\x9f\xa0\u0104\u02D8\u0141\xa4\u013D\u015A\xa7\xa8\u0160\u015E\u0164\u0179\xad\u017D\u017B\xb0\u0105\u02DB\u0142\xb4\u013E\u015B\u02C7\xb8\u0161\u015F\u0165\u017A\u02DD\u017E\u017C\u0154\xc1\xc2\u0102\xc4\u0139\u0106\xc7\u010C\xc9\u0118\xcb\u011A\xcd\xce\u010E\u0110\u0143\u0147\xd3\xd4\u0150\xd6\xd7\u0158\u016E\xda\u0170\xdc\xdd\u0162\xdf\u0155\xe1\xe2\u0103\xe4\u013A\u0107\xe7\u010D\xe9\u0119\xeb\u011B\xed\xee\u010F\u0111\u0144\u0148\xf3\xf4\u0151\xf6\xf7\u0159\u016F\xfa\u0171\xfc\xfd\u0163\u02D9",
@@ -46,104 +51,8 @@ export const Latin2 = {
 	}
 };
 
-export const UTF8 = {
-
-	charToCode (c) {
-
-		if ( c.length > 1 ) `c argument must be a string with length of 1! got: ${c.length}\nYou might try to pass the unicode character instead of UTF16 as well`;
-
-		const utf16 = c.charCodeAt(0);
-
-		const blen = bitLength(utf16);
-
-		if (blen <= 7) {
-
-			return [utf16];
-		}
-		if (blen <= 11) {
-
-			const codes = splitByBase(utf16, 0x40);
-
-			codes[0] += 0b11000000;
-			codes[1] += 0b10000000;
-
-			return codes;
-		}
-		if (blen <= 16) {
-
-			const codes = splitByBase(utf16, 0x40, 0x40);
-
-			codes[0] += 0b11100000;
-			codes[1] += 0b10000000;
-			codes[2] += 0b10000000;
-
-			return codes;
-		}
-	},
-
-	codeToChar (codes) {
-		
-		if ( codes.length === 1 ) {
-
-			if ( (codes[0] & 0xc0) === 0 )
-
-				return String.fromCharCode( codes[0] );
-
-			throw `malformed utf8 code! got: ${b8(codes)}`;
-		}
-		if ( codes.length === 2 ) {
-
-			if ( (codes[0] & 0xe0) === 0xc0 && (codes[1] & 0xc0) === 0x80 )
-
-				return String.fromCharCode( ( (codes[0] & 0x1f) << 6 ) + (codes[1] & 0x3f) );
-
-			throw `malformed utf8 code! got: ${b8(codes)}`;
-		}
-		if ( codes.length === 3 ) {
-
-			if ( (codes[0] & 0xf0) === 0xe0 && (codes[1] & 0xc0) === 0x80 && (codes[2] & 0xc0) === 0x80 )
-
-				return String.fromCharCode( ( (codes[0] & 0x0f) << 12 ) + ( (codes[1] & 0x3f) << 6 ) + (codes[2] & 0x3f) );
-
-			throw `malformed utf8 code! got: ${b8(codes)}`;
-		}
-
-		throw `malformed utf8 code! got: ${b8(codes)}`;
-	}
-};
-
-//console.log(destructByBase(0xffff, 0x40, 0x40).map(n => b(n)));
-
-//const arrays = [
-//	new BinaryAsArray(12).setInt(0, 12, 0xfff),
-//	new BinaryAsArray(4).setInt(0, 4, 0xf),
-//	new BinaryAsArray(25).setInt(0, 25, 0x1fffffa),
-//	new BinaryAsArray(7).setInt(0, 7, 0x5a),
-//	new BinaryAsArray(8).setInt(0, 8, 0xaa)
-//];
-
-//console.log([0xfff, 0xf, 0x1fffffa, 0x5a, 0xaa].map(n => b(n)));
-//console.log([0xfff, 0xf, 0x1fffffa, 0x5a, 0xaa].map(n => bitLength(n)));
-//console.log(arrays.map( arr => arr.bitLength ));
-////console.log(arrays.map( arr => b8(arr.bytes) ));
-//console.log(arrays.map( arr => b(arr.getInt(0, arr.bitLength)) ));
-//console.log(b8(BinaryAsArray.join(...arrays).bytes));
-
-//console.log(b(sliceBits(0xffff, 4, 4)));
 
 export const Byte = {
-
-	supportedEncoding: [
-		"utf8", "latin1", "latin2", "windows1250", "windows1251"
-	],
-
-	skippedCharacters: {
-		"utf8": [0],
-		"latin1": [0],
-		"latin2": [0],
-		"windows1250": [0],
-		"windows1251": [0],
-	},
 
 	prefix (version, len) {
 
@@ -191,13 +100,33 @@ export const Byte = {
 
 export class ByteArray extends BinaryAsArray {
 
-	constructor (len, encoding = "utf8") {
+	static supportedEncoding = [
+		"latin1", "latin2", "windows1250", "windows1251"
+	]
 
-		if (!Byte.supportedEncoding.includes(encoding)) throw new Error("...");
+	static skippedCharacters ={
+		"latin1": [0],
+		"latin2": [0],
+		"windows1250": [0],
+		"windows1251": [0],
+	}
+
+	constructor (len, encodingName) {
 
 		super(len * 8);
 
-		this.encoding = encoding;
+		this.encodingName = encodingName;
+
+		this.encoding =
+			choose( this.encodingName,
+				[ "latin1", "latin2", "windows1250", "windows1251" ],
+				[
+					Latin1,
+					Latin2,
+					Windows1250,
+					Windows1251
+				]
+			) ?? throwError(`ByteArray doesn't support encoding ${encodingName}. List of supported encoding: ${ByteArray.supportedEncoding}`);
 
 		this.type = "byte";
 		this.length = len;
@@ -210,10 +139,28 @@ export class ByteArray extends BinaryAsArray {
 
 	setStr (i, str) {
 
+		const len = Math.min( str.length, this.bytes.length - i );
+
+		for (let j = 0; j < len; j++) {
+
+			this.bytes[ i + j ] = this.encoding.charToCode( str[j] );
+		}
+
+		return this;
 	}
 
-	getStr () {
+	getStr (i, len) {
 
+		let str = "";
+
+		const ie = Math.min( len + i, this.bytes.length );
+
+		for (i; i < ie; i++) {
+
+			str += this.encoding.codeToChar( this.bytes[i] );
+		}
+
+		return str;
 	}
 
 	validate () {
@@ -240,5 +187,170 @@ export class ByteArray extends BinaryAsArray {
 	toUintArray () {
 
 		return new Uint8Array(this.bytes);
+	}
+}
+
+export class UTF16ByteArray extends BinaryAsArray {
+
+	constructor (len) {
+
+		super(len * 16);
+
+		this.encodingName = "utf16";
+
+		this.type = "byte";
+		this.length = len;
+		this.base = 16;
+	}
+
+	setStr (i, str) {
+
+		const len = Math.min( str.length, this.length - i );
+
+		for (let j = 0; j < len; j++) {
+
+			const utf16 = str[j].charCodeAt(0);
+
+			this.bytes[ (i + j) * 2 ] = utf16 >> 8;
+			this.bytes[ (i + j) * 2 + 1 ] = utf16 % 256;
+		}
+
+		return this;
+	}
+
+	getStr (i, len) {
+
+		let str = "";
+
+		const je = Math.min( len + i, this.length ) * 2;
+
+		for (let j = i * 2; j < je; j += 2) {
+
+			str += String.fromCharCode( (this.bytes[j] << 8) + this.bytes[j + 1] );
+		}
+
+		return str;
+	}
+}
+
+
+export const UTF8 = {
+
+	getByteLength (c) {
+
+		const utf16 = c.charCodeAt(0);
+
+		return chooseSlope( bitLength(utf16), [0, 7, 11, 16], [1, 2, 3], true );
+	},
+
+	charToCode (c) {
+
+		if ( c.length > 1 ) `c argument must be a string with length of 1! got: ${c.length}\nYou might try to pass the unicode character instead of UTF16 as well`;
+
+		const utf16 = c.charCodeAt(0);
+
+		if (utf16 < 0x80) {
+
+			const codes= new Uint8Array(1);
+
+			codes[0] = utf16;
+
+			return codes;
+		}
+		if (utf16 < 0x800) {
+
+			const codes = new Uint8Array( splitByBase(utf16, 0x40) );
+
+			codes[0] += 0b11000000;
+			codes[1] += 0b10000000;
+
+			return codes;
+		}
+		if (utf16 < 0x10000) {
+
+			const codes = new Uint8Array( splitByBase(utf16, 0x40, 0x40) );
+
+			codes[0] += 0b11100000;
+			codes[1] += 0b10000000;
+			codes[2] += 0b10000000;
+
+			return codes;
+		}
+	},
+
+	codeToChar (codes) {
+		
+		if ( codes.length === 1 ) {
+
+			if ( (codes[0] & 0xc0) === 0 )
+
+				return String.fromCharCode( codes[0] );
+
+			throw `malformed utf8 code! got: ${b8(codes)}`;
+		}
+		if ( codes.length === 2 ) {
+
+			if ( (codes[0] & 0xe0) === 0xc0 && (codes[1] & 0xc0) === 0x80 )
+
+				return String.fromCharCode( ( (codes[0] & 0x1f) << 6 ) + (codes[1] & 0x3f) );
+
+			throw `malformed utf8 code! got: ${b8(codes)}`;
+		}
+		if ( codes.length === 3 ) {
+
+			if ( (codes[0] & 0xf0) === 0xe0 && (codes[1] & 0xc0) === 0x80 && (codes[2] & 0xc0) === 0x80 )
+
+				return String.fromCharCode( ( (codes[0] & 0x0f) << 12 ) + ( (codes[1] & 0x3f) << 6 ) + (codes[2] & 0x3f) );
+
+			throw `malformed utf8 code! got: ${b8(codes)}`;
+		}
+
+		throw `malformed utf8 code! got: ${b8(codes)}`;
+	}
+};
+
+export class UTF8ByteArray extends BinaryAsArray {
+
+	constructor (len) {
+
+		super(len * 8);
+
+		this.encodingName = "utf8";
+
+		this.type = "byte";
+		this.length = len;
+		this.base = 8;
+	}
+
+	setStr (i, str) {
+
+		const arr = [];
+
+		const len = Math.min( str.length, this.length - i );
+
+		let k = 0;
+
+		for (let j = 0; j < len; j++) {
+
+			const utf16 = str[j].charCodeAt(0);
+
+			arr[k++]
+		}
+
+		return this;
+	}
+
+	getStr (i, len) {
+
+		let str = "";
+
+		const je = Math.min( len + i, this.length ) * 2;
+
+		for (let j = i * 2; j < je; j += 2) {
+
+			str += String.fromCharCode( (this.bytes[j] << 8) + this.bytes[j + 1] );
+		}
+
+		return str;
 	}
 }
