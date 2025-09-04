@@ -233,4 +233,26 @@ export const choose = ( x, cases, values, defaultValue ) => {
 	return defaultValue;
 };
 
+export const chooseSlope = ( x, points, values, including = false, defaultValue ) => {
+
+	if ( !(points.length && values.length && points.length === values.length + 1) )
+
+		throw `cases and values arguments are not arrays, have zero length or their lengths don't match!`;
+
+	if ( including ? x <= points[0] : x < points[0] ) {
+
+		return defaultValue;
+	}
+
+	for (let i = 1; i < points.length; i++) {
+
+		if ( including ? ( x <= points[i] ) : ( x < points[i] ) ) {
+
+			return values[i - 1];
+		}
+	}
+
+	return defaultValue;
+};
+
 export const throwError = error => { throw error };
