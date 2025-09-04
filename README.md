@@ -1,12 +1,50 @@
-# React + Vite
+# API
+### BinaryAsArray
+### `static`
+`static transferBits( target, source, t0, bitLength, s0 )` *: undefined*
+- ***target** : BinaryAsArray | Int8Array | Uint8Aray | Uint8ClampedArray*
+- ***source** : BinaryAsArray | Int8Array | Uint8Aray | Uint8ClampedArray*
+- ***t0** : Number* ( 0 <= x < target bit length )
+- *? **bitLength** : Number* ( 0 < x )
+- ***s0** : Number* ( 0 <= x < source.bitLength ) ; default value: `0`
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+```
+                        bitLength = 10
+                      s0 = 4 │
+                      ↓      │
+source:           101011010101010
+                      ↓↓↓↓↓↓↓│↓↓
+					  ┌──────┴─┐
+target:  11101000111100011010010100110
+                      ↑
+                      t0 = 13
+```
 
-Currently, two official plugins are available:
+`static join( ...sources )` *: BinaryAsArray*
+- ***sources** : [ BinaryAsArray | Int8Array | Uint8Aray | Uint8ClampedArray ]*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+`static from( source, bitLength )` *: BinaryAsArray*
+- ***source** : BinaryAsArray | Int8Array | Uint8Aray | Uint8ClampedArray*
+- ***bitLength** : Number* ( 0 < x )
 
-## Expanding the ESLint configuration
+### `constructor ( bitLength )`
+- ***bitLength** : Number* ( 0 < x )
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+`setInt( int, t0, blen )` *: BinaryAsArray*
+- ***int** : Number*
+- ***t0** : Number* ( 0 <= x < target bit length )
+- ***blen** : Number* ( 0 < x )
+
+`getInt( t0, blen )` *: Number*
+- ***t0** : Number* ( 0 <= x < target bit length )
+- ***blen** : Number* ( 0 < x )
+
+`setBitArray( source, t0, blen, s0 )` *: BinaryAsArray*
+- ***source** : BinaryAsArray | Int8Array | Uint8Aray | Uint8ClampedArray*
+- ***t0** : Number* ( 0 <= x < target bit length )
+- ***blen** : Number* ( 0 < x )
+- ***s0** : Number* ( 0 <= x < source.bitLength ) ; default value: `0`
+
+`getBitArray( s0, blen )` *: BinaryAsArray*
+- ***s0** : Number* ( 0 <= x < source bit length )
+- ***blen** : Number* ( 0 < x )
