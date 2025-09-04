@@ -39,6 +39,84 @@ describe("beans", () => {
 });
 
 describe("BinaryAsArray", () => {
+
+	describe("static transferBits", () => {
+
+		describe("UInt8Arrays", () => {
+
+			test("arr1 arr2.bytes 0", () => {
+
+				const [ arr1, arr2 ] = getInit();
+
+				BinaryAsArray.transferBits( arr1, arr2.bytes, 0 );
+
+				deepEqualIntArrays(
+					arr1.bytes,
+					[0b11110000, 0b01011010, 0b11001100, 0b01010101, 0b00100000]
+				);
+			});
+
+			test("arr1 arr2.bytes 2", () => {
+
+				const [ arr1, arr2 ] = getInit();
+
+				BinaryAsArray.transferBits( arr1, arr2.bytes, 2 );
+
+				deepEqualIntArrays(
+					arr1.bytes,
+					[0b10111100, 0b00010110, 0b10001100, 0b01010101, 0b00100000]
+				);
+			});
+
+			test("arr1 arr2.bytes 21 13 9", () => {
+
+				const [ arr1, arr2 ] = getInit();
+
+				BinaryAsArray.transferBits( arr1, arr2.bytes, 21, 13, 9 );
+
+				deepEqualIntArrays(
+					arr1.bytes,
+					[0b10101010, 0b00110101, 0b11001101, 0b10100101, 0b00100000]
+				);
+			});
+
+			test("arr1.bytes arr2 21 13 9", () => {
+
+				const [ arr1, arr2 ] = getInit();
+
+				BinaryAsArray.transferBits( arr1.bytes, arr2, 21, 13, 9 );
+
+				deepEqualIntArrays(
+					arr1.bytes,
+					[0b10101010, 0b00110101, 0b11001101, 0b10110101, 0b00100000]
+				);
+			});
+
+			test("arr1 arr2.bytes 26 13", () => {
+
+				const [ arr1, arr2 ] = getInit();
+
+				BinaryAsArray.transferBits( arr1, arr2.bytes, 26, 13 );
+
+				deepEqualIntArrays(
+					arr1.bytes,
+					[0b10101010, 0b00110101, 0b11001100, 0b01111100, 0]
+				);
+			});
+
+			test("arr1.bytes arr2.bytes 26 13", () => {
+
+				const [ arr1, arr2 ] = getInit();
+
+				BinaryAsArray.transferBits( arr1.bytes, arr2.bytes, 26, 13 );
+
+				deepEqualIntArrays(
+					arr1.bytes,
+					[0b10101010, 0b00110101, 0b11001100, 0b01111100, 0b00010110]
+				);
+			});
+		});
+	});
 	
 	describe("setBitArray", () => {
 
