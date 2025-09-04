@@ -108,6 +108,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.slice(0, 7);
 
+			expect( arr_.bitLength ).toBe(39);
 			expect( arr_.getStr(0, 7) ).toBe("WHELLOD");
 		});
 
@@ -117,6 +118,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.slice(3, 7);
 
+			expect( arr_.bitLength ).toBe(22);
 			expect( arr_.getStr(0, 4) ).toBe("LLOD");
 		});
 
@@ -126,6 +128,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.slice(1, 3);
 
+			expect( arr_.bitLength ).toBe(11);
 			expect( arr_.getStr(0, 2) ).toBe("HE");
 		});
 	});
@@ -138,6 +141,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.padStart(4);
 
+			expect( arr_.bitLength ).toBe(61);
 			expect( arr_.getStr(0, 11) ).toBe("0000WHELLOD");
 		});
 
@@ -147,6 +151,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.padStart(3);
 
+			expect( arr_.bitLength ).toBe(55);
 			expect( arr_.getStr(0, 10) ).toBe("000WHELLOD");
 		});
 	});
@@ -159,6 +164,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.padEnd(4);
 
+			expect( arr_.bitLength ).toBe(61);
 			expect( arr_.getStr(0, 11) ).toBe("WHELLOD0000");
 		});
 
@@ -168,6 +174,7 @@ describe("Alphanum", () => {
 
 			const arr_ = arr.padEnd(3);
 
+			expect( arr_.bitLength ).toBe(55);
 			expect( arr_.getStr(0, 10) ).toBe("WHELLOD000");
 		});
 	});
