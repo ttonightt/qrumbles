@@ -25,6 +25,28 @@ export const isInt32Array = arr => (
 	arr instanceof Uint32Array
 );
 
+export const isFloatArray = arr => (
+	arr instanceof Float32Array ||
+	arr instanceof Float64Array
+);
+
+export const isBigIntArray = arr => (
+	arr instanceof BigInt64Array ||
+	arr instanceof BigUint64Array
+);
+
+export const isTypedArray = arr => (
+	isIntArray(arr) ||
+	isFloatArray(arr) ||
+	isBigIntArray(arr)
+);
+
+export const isIterable = x => (
+	typeof x === "string" ||
+	Array.isArray(x) ||
+	isTypedArray(x)
+);
+
 export const getIntArrayBase = arr => {
 
 	if ( isInt8Array(arr) ) return 8;
@@ -256,3 +278,75 @@ export const chooseSlope = ( x, points, values, including = false, defaultValue 
 };
 
 export const throwError = error => { throw error };
+
+export const minmax = (...n) => {
+
+	let min = n[0], max = n[0];
+
+	for (let i = 0; i < n.length; i++) {
+
+		if (n[i] < min) min = n[i];
+		if (n[i] > max) max = n[i];
+	}
+
+	return [min, max];
+};
+
+export const rand = (near, far) => {
+
+	const x = Math.random();
+
+	if ( near !== undefined ) {
+
+		if (typeof near === "number") {
+
+			if ( far !== undefined ) {
+
+				if (typeof far === "number") {
+
+					return x * (far - near) + near;
+				}
+
+				throw `the second argument must be a number! Got: ${far}`;
+			}
+
+			return x * near;
+		}
+
+		throw `the second argument must be a number! Got: ${near}`;
+	}
+
+	return x;
+};
+
+export const randFrom = (iterable, near, far) => {
+
+	const x = Math.random();
+
+	if ( isIterable( iterable ) ) {
+
+		if ( near !== undefined ) {
+
+			if (near < iterable.length - 1) {
+
+				if ( far !== undefined ) {
+
+					if (far < iterable.length - 1) {
+
+						return iterable[ Math.floor( x * (far - near - 1) + near ) ];
+					}
+
+					throw `the second argument must be a number! Got: ${far}`;
+				}
+
+				return iterable[ Math.round( x * (near - 1) ) ];
+			}
+
+			throw `the second argument must be a number! Got: ${near}`;
+		}
+
+		return iterable[ Math.floor( x * (iterable.length - 1) ) ];
+	}
+
+	throw `the first argument must be an array, typed array or string Got: ${iterable}!`;
+};

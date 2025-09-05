@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest";
-import { choose, chooseSlope } from "../src/libs/beans";
+import { assert, describe, expect, test } from "vitest";
+import { choose, chooseSlope, minmax, rand, randFrom } from "../src/libs/beans";
 
 
 describe("choose", () => {
@@ -77,5 +77,157 @@ describe("chooseSlope", () => {
 
 			expect( chooseSlope( 41, [1,10,27,41], [10,12,14] ) ).toBe(undefined);
 		});
+	});
+});
+
+describe("minmax", () => {
+
+	test("11 12 13 14 15 16", () => {
+
+		assert.deepEqual( minmax( 14, 12, 13, 11, 15, 16 ), [11, 16] );
+	});
+});
+
+describe("rand", () => {
+
+	test("()", () => {
+
+		for (let i = 0; i < 10000; i++) {
+
+			const x = rand();
+
+			expect( x ).toBeGreaterThanOrEqual(0);
+			expect( x ).toBeLessThanOrEqual(1);
+		}
+	});
+
+	test("4", () => {
+
+		for (let i = 0; i < 10000; i++) {
+
+			const x = rand(0, 4);
+
+			expect( x ).toBeGreaterThanOrEqual(0);
+			expect( x ).toBeLessThanOrEqual(4);
+		}
+	});
+
+	test("3 8", () => {
+
+		for (let i = 0; i < 10000; i++) {
+
+			const x = rand(3, 8);
+
+			expect( x ).toBeGreaterThanOrEqual(3);
+			expect( x ).toBeLessThanOrEqual(8);
+		}
+	});
+});
+
+describe("randFrom", () => {
+
+	const arr = [0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+	const str = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+
+	test("arr", () => {
+
+		const check = [];
+
+		for (let i = 0; i < 1000; i++) {
+
+			const x = randFrom(arr);
+
+			check.includes(x) || check.push(x);
+		}
+
+		for (const item of check) {
+
+			expect( arr ).include(item);
+		}
+	});
+
+	test("arr 7", () => {
+
+		const check = [];
+
+		for (let i = 0; i < 1000; i++) {
+
+			const x = randFrom(arr, 7);
+
+			check.includes(x) || check.push(x);
+		}
+
+		for (const item of check) {
+
+			expect( arr.slice(0, 7) ).include(item);
+		}
+	});
+
+	test("arr 3 8", () => {
+
+		const check = [];
+
+		for (let i = 0; i < 1000; i++) {
+
+			const x = randFrom(arr, 3, 8);
+
+			check.includes(x) || check.push(x);
+		}
+
+		for (const item of check) {
+
+			expect( arr.slice(3, 8) ).include(item);
+		}
+	});
+
+	test("str", () => {
+
+		const check = [];
+
+		for (let i = 0; i < 1000; i++) {
+
+			const x = randFrom(str);
+
+			check.includes(x) || check.push(x);
+		}
+
+		for (const item of check) {
+
+			expect( str ).include(item);
+		}
+	});
+
+	test("str 7", () => {
+
+		const check = [];
+
+		for (let i = 0; i < 1000; i++) {
+
+			const x = randFrom(str, 7);
+
+			check.includes(x) || check.push(x);
+		}
+
+		for (const item of check) {
+
+			expect( str.slice(0, 7) ).include(item);
+		}
+	});
+
+	test("str 3 8", () => {
+
+		const check = [];
+
+		for (let i = 0; i < 1000; i++) {
+
+			const x = randFrom(str, 3, 8);
+
+			check.includes(x) || check.push(x);
+		}
+
+		for (const item of check) {
+
+			expect( str.slice(3, 8) ).include(item);
+		}
 	});
 });
