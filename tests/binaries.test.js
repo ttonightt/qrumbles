@@ -117,6 +117,45 @@ describe("BinaryAsArray", () => {
 			});
 		});
 	});
+
+	describe.only("static transferBytes", () => {
+
+		test("arr1.bytes arr2.bytes 0", () => {
+
+			const [ arr1, arr2 ] = getInit();
+
+			BinaryAsArray.transferBytes( arr1.bytes, arr2.bytes, 0 );
+
+			deepEqualIntArrays(
+				arr1.bytes,
+				[0b11110000, 0b01011010, 0b11001100, 0b01010101, 0b00100000]
+			);
+		});
+
+		test("arr1.bytes arr2.bytes 2 2", () => {
+
+			const [ arr1, arr2 ] = getInit();
+
+			BinaryAsArray.transferBytes( arr1.bytes, arr2.bytes, 2, 2 );
+
+			deepEqualIntArrays(
+				arr1.bytes,
+				[0b10101010, 0b00110101, 0b11110000, 0b01011010, 0b00100000]
+			);
+		});
+
+		test("arr2.bytes arr1.bytes 1 2 3", () => {
+
+			const [ arr1, arr2 ] = getInit();
+
+			BinaryAsArray.transferBytes( arr2.bytes, arr1.bytes, 1, 2, 3 );
+
+			deepEqualIntArrays(
+				arr2.bytes,
+				[0b11110000, 0b01010101]
+			);
+		});
+	});
 	
 	describe("setBitArray", () => {
 

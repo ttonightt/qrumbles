@@ -45,7 +45,7 @@ export class BinaryAsArray {
 
 		if ( !(0 <= t0 && t0 < targetBitLength) )
 
-			throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
+			throw `t0 argument is out of range (must be >= 0 and < target bit length)`;
 
 
 		const [ sourceBytes, sourceBitLength ] = 
@@ -56,6 +56,12 @@ export class BinaryAsArray {
 					[       source, 8 * source.length ]
 				]
 			) ?? throwError(`_target argument must be an instance of BinaryAsArray or typed Int8Array`);
+
+
+		if ( !(0 <= s0 && s0 < sourceBitLength) )
+
+			throw `s0 argument is out of range (must be >= 0 and < source bit length)`;
+
 
 		bitLength = 
 			choose( true,
@@ -93,6 +99,28 @@ export class BinaryAsArray {
 
 			s += buffBitLength;
 			t += buffBitLength;
+		}
+	}
+
+	static transferBytes (target, source, t0, length, s0 = 0) {
+
+		if ( !isInt8Array(target) ) throw `target argument must be a typed Int8Array`
+		if ( !isInt8Array(source) ) throw `source argument must be a typed Int8Array`
+		if ( !(0 <= t0 && t0 < target.length) ) throw `t0 argument is out of range (must be >= 0 and < target.bitLength)`;
+		if ( !(0 <= s0 && s0 < source.length) ) throw `s0 argument is out of range (must be >= 0 and < source bit length)`;
+
+		length = 
+			choose( true,
+				[ length === undefined, length > 0 ],
+				[
+					Math.min( target.length - t0, source.length - s0 ),
+					Math.min( target.length - t0, source.length - s0, length )
+				]
+			) ?? throwError(`length argument is out of range (must be > 0 if provided)`);
+
+		for (let i = 0; i < length; i++) {
+
+			target[ i + t0 ] = source[ i + s0 ];
 		}
 	}
 
