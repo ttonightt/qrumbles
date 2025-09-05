@@ -14,7 +14,13 @@ export const Alphanum = {
 
 	charToCode (c) {
 
-		return this.__ref.indexOf(c);
+		const code = this.__ref.indexOf(c);
+
+		if (code < 0)
+
+			throw `Alphanum doesn't support this character: ${c}`;
+
+		return code;
 	},
 
 	codeToChar (i) {
@@ -109,7 +115,7 @@ export class AlphanumArray extends BinaryAsArray {
 		return this;
 	}
 
-	getStr (i = 0, len) {
+	getStr (i = 0, len = this.length) {
 
 		if (!(0 <= i && i < this.length)) throw new Error("...");
 
