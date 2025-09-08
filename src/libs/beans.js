@@ -41,6 +41,11 @@ export const isTypedArray = arr => (
 	isBigIntArray(arr)
 );
 
+export const isAnyArray = x => (
+	Array.isArray(x) ||
+	isTypedArray(x)
+);
+
 export const isIterable = x => (
 	typeof x === "string" ||
 	Array.isArray(x) ||
@@ -349,4 +354,33 @@ export const randFrom = (iterable, near, far) => {
 	}
 
 	throw `the first argument must be an array, typed array or string Got: ${iterable}!`;
+};
+
+export const Gen = (Cls, length, fn) => {
+
+	if ( isAnyArray( Cls.prototype ) ) {
+
+		const arr = new Cls(length);
+
+		for (let i = 0; i < length; i++) {
+
+			arr[i] = fn(i, arr);
+		}
+
+		return arr;
+	}
+	
+	if ( Cls === String ) {
+
+		let str = "";
+
+		for (let i = 0; i < length; i++) {
+
+			str += fn(i, str);
+		}
+
+		return str;
+	}
+
+	throw `Only iterable class can be passed! Got: ${Cls}`;
 };

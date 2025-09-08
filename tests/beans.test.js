@@ -1,6 +1,19 @@
 import { assert, describe, expect, test } from "vitest";
-import { choose, chooseSlope, minmax, rand, randFrom } from "../src/libs/beans";
+import { choose, chooseSlope, isIterable, minmax, rand, randFrom } from "../src/libs/beans";
 
+
+describe("isIterable", () => {
+
+	test("string", () => {
+
+		expect( isIterable("") ).toBeTruthy();
+	});
+
+	test("String.prototype", () => {
+
+		expect( isIterable(String) ).toBeFalsy();
+	});
+});
 
 describe("choose", () => {
 
