@@ -9,12 +9,14 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest",
-    "test:bench": "vitest bench"
+    "test:bench": "vitest bench",
+    "start": "node --watch --import=specifier-resolution-node/register"
   },
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router": "^7.6.2"
+    "react-router": "^7.6.2",
+    "seedrandom": "^3.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
@@ -27,6 +29,7 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "postcss": "^8.5.5",
+    "specifier-resolution-node": "^1.1.4",
     "tailwindcss": "^3.4.17",
     "vite": "^6.3.5",
     "vitest": "^3.2.4"
