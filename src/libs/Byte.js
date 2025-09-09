@@ -1,4 +1,4 @@
-import { b, b8, binole, bitLength, choose, chooseSlope, destructByBase, sliceBits, splitByBase, throwError } from "./beans";
+import { b, b8, binole, choose, chooseSlope, destructByBase, digits, sliceBits, splitByBase, throwError } from "./beans";
 import { BinaryAsArray } from "./BinaryAsArray";
 
 export const Windows1250 = {
@@ -240,7 +240,7 @@ export const UTF8 = {
 
 		const utf16 = c.charCodeAt(0);
 
-		return chooseSlope( bitLength(utf16), [0, 7, 11, 16], [1, 2, 3], true );
+		return chooseSlope( digits(utf16, 2), [0, 7, 11, 16], [1, 2, 3], true );
 	},
 
 	charToCode (c) {

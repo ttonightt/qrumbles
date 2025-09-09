@@ -1,5 +1,5 @@
 import { assert, describe, expect, test } from "vitest";
-import { choose, chooseSlope, isIterable, minmax, rand, randFrom } from "../src/libs/beans";
+import { choose, chooseSlope, digits, isIterable, minmax, rand, randFrom } from "../src/libs/beans";
 
 
 describe("isIterable", () => {
@@ -89,6 +89,88 @@ describe("chooseSlope", () => {
 			}
 
 			expect( chooseSlope( 41, [1,10,27,41], [10,12,14] ) ).toBe(undefined);
+		});
+	});
+});
+
+describe("digits", () => {
+
+	describe("2", () => {
+
+		test("1", () => {
+
+			expect( digits(1, 2) ).toBe(1);
+		});
+
+		test("0", () => {
+
+			expect( digits(0, 2) ).toBe(1);
+		});
+
+		test("2", () => {
+
+			expect( digits(2, 2) ).toBe(2);
+		});
+
+		test("255", () => {
+
+			expect( digits(255, 2) ).toBe(8);
+		});
+
+		test("256", () => {
+
+			expect( digits(256, 2) ).toBe(9);
+		});
+	});
+
+	describe("10", () => {
+
+		test("9", () => {
+
+			expect( digits(9, 10) ).toBe(1);
+		});
+
+		test("10", () => {
+
+			expect( digits(10, 10) ).toBe(2);
+		});
+
+		test("100", () => {
+
+			expect( digits(100, 10) ).toBe(3);
+		});
+
+		test("99", () => {
+
+			expect( digits(99, 10) ).toBe(2);
+		});
+
+		test("15000", () => {
+
+			expect( digits(15000, 10) ).toBe(5);
+		});
+	});
+
+	describe("16", () => {
+
+		test("1", () => {
+
+			expect( digits(0xf, 16) ).toBe(1);
+		});
+
+		test("0", () => {
+
+			expect( digits(0xff, 16) ).toBe(2);
+		});
+
+		test("2", () => {
+
+			expect( digits(0x100, 16) ).toBe(3);
+		});
+
+		test("255", () => {
+
+			expect( digits(0x1ffff1, 16) ).toBe(6);
 		});
 	});
 });

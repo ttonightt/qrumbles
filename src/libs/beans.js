@@ -61,11 +61,18 @@ export const getIntArrayBase = arr => {
 	throw "given array doesn't belong to typed int arrays!";
 };
 
-export const bitLength = n => {
+export const digits = (n, radix = 10) => {
 
-	if (n === 0) return 0;
+	if (n === 0) return 1;
 
-	return Math.floor(Math.log2(n)) + 1;
+	switch (radix) {
+		case 0: case 1: case 2:
+			return Math.floor( Math.log2(n) ) + 1;
+		case 10:
+			return Math.floor( Math.log10(n) ) + 1;
+		default:
+			return Math.floor( Math.log(n) / Math.log(radix) ) + 1;
+	}
 };
 
 const __b = (data, pad, I) => {

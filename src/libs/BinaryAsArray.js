@@ -1,4 +1,4 @@
-import { putBits, sliceBits, b8, bitOffset, b, clearLastBits, ones, bitLength, isIntArray, isInt8Array, choose, throwError } from "./beans";
+import { putBits, sliceBits, b8, bitOffset, b, clearLastBits, ones, isIntArray, isInt8Array, choose, throwError } from "./beans";
 
 export class BinaryAsArray {
 

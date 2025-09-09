@@ -118,7 +118,7 @@ describe("BinaryAsArray", () => {
 		});
 	});
 
-	describe.only("static transferBytes", () => {
+	describe("static transferBytes", () => {
 
 		test("arr1.bytes arr2.bytes 0", () => {
 
