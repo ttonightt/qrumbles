@@ -58,6 +58,30 @@ export class AlphanumArray extends BinaryAsArray {
 		return (11 * (len - lenM2) / 2) + (6 * lenM2);
 	}
 
+	static charsFitInto (bitLength) {
+
+		const [pairs, mod] = splitByBase(bitLength, 11);
+
+		return [
+			( pairs * 2 ) + ( mod >= 6 ),
+			mod % 6
+		];
+	}
+
+	static fromString (str) {
+
+		return new AlphanumArray(str.length).setStr(str);
+	}
+
+	static fromBinary (source) {
+
+		const target = new AlphanumArray( this.charsFitInto( source.bitLength )[0] );
+
+		BinaryAsArray.transferBits(target, source, 0);
+
+		return target;
+	}
+
 	constructor (len) {
 
 		super(AlphanumArray.bitLengthOf(len));
