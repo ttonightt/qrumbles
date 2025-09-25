@@ -1,6 +1,20 @@
 import { assert, describe, expect, test } from "vitest";
-import { choose, chooseSlope, digits, isIterable, minmax, rand, randFrom } from "../src/libs/beans";
+import { choose, chooseSlope, digits, isIterable, minmax, rand, randFrom, b } from "@ttonightt/beans";
 
+
+describe("beans", () => {
+
+	test("b", () => {
+
+		const data = [
+			123,
+			[ 321 ],
+			new Uint8Array([ 255, 11, 3 ])
+		];
+
+		console.log( b(data, 8) );
+	});
+});
 
 describe("isIterable", () => {
 

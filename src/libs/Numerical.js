@@ -1,4 +1,4 @@
-import { b, b8, binole, destructByBase } from "./beans";
+import { b, b8, binole, destructByBase } from "@ttonightt/beans";
 
 import { BinaryAsArray } from "./BinaryAsArray";
 

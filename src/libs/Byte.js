@@ -1,4 +1,4 @@
-import { b, b8, binole, choose, chooseSlope, destructByBase, digits, sliceBits, splitByBase, throwError } from "./beans";
+import { b, b8, binole, choose, chooseSlope, destructByBase, digits, sliceBits, splitByBase, throwError } from "@ttonightt/beans";
 import { BinaryAsArray } from "./BinaryAsArray";
 
 export const Windows1250 = {

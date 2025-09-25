@@ -1,7 +1,7 @@
 import { describe, expect, assert, test } from "vitest";
 import { deepEqualIntArrays } from "./commons";
 
-import { b8 } from "../src/libs/beans";
+import { b8 } from "@ttonightt/beans";
 import { ByteArray, UTF16ByteArray, UTF8 } from "../src/libs/Byte";
 
 

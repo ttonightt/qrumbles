@@ -1,4 +1,4 @@
-import { choose, splitByBase } from "./beans";
+import { choose, splitByBase } from "@ttonightt/beans";
 
 import { BinaryAsArray } from "./BinaryAsArray";
 

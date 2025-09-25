@@ -1,5 +1,5 @@
 import { assert } from "vitest";
-import { b8 } from "../src/libs/beans";
+import { b8 } from "@ttonightt/beans";
 
 export const deepEqualIntArrays = (opt1, opt2) => {
 

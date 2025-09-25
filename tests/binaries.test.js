@@ -2,7 +2,7 @@ import { describe, expect, assert, test } from "vitest";
 import { deepEqualIntArrays } from "./commons";
 
 import { BinaryAsArray } from "../src/libs/BinaryAsArray";
-import { b8, b } from "../src/libs/beans";
+import { b8, b } from "@ttonightt/beans";
 
 const getInit = () => {
 
@@ -23,20 +23,6 @@ const getInit = () => {
 		arr4
 	];
 };
-
-describe("beans", () => {
-
-	test("b", () => {
-
-		const data = [
-			123,
-			[ 321 ],
-			new Uint8Array([ 255, 11, 3 ])
-		];
-
-		console.log( b(data, 8) );
-	});
-});
 
 describe("BinaryAsArray", () => {
 
